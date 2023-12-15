@@ -1,0 +1,6 @@
+matplotlib
+numpy
+opencv_python_headless
+requests
+torch
+torchvision

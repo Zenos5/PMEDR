@@ -1,0 +1,10 @@
+numpy
+pandas
+pytorch-lightning==2.0.8
+torch
+torchaudio
+torchmetrics
+torchtext
+torchvision
+evaluate
+wandb

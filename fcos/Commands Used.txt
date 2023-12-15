@@ -1,0 +1,24 @@
+conda create -n fcos-ocv pip python=3.10
+
+conda activate fcos-ocv
+
+conda install ipython
+
+pip install -r requirements.txt
+ (note: I removed the specific versions on the dependancies in the requirements.txt file)
+ (torch version 2.0.1+cu117)
+
+nvcc --version
+	nvcc: NVIDIA (R) Cuda compiler driver
+	Copyright (c) 2005-2021 NVIDIA Corporation
+	Built on Thu_Nov_18_09:45:30_PST_2021
+	Cuda compilation tools, release 11.5, V11.5.119
+	Build cuda_11.5.r11.5/compiler.30672275_0
+
+gcc --version
+	gcc (Ubuntu 10.5.0-1ubuntu1~22.04) 10.5.0
+	Copyright (C) 2020 Free Software Foundation, Inc.
+	This is free software; see the source for copying conditions.  There is NO
+	warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+(Moved IBEM dataset into fcos)
