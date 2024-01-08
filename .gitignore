@@ -1,0 +1,10 @@
+data/
+image2latex/lightning_logs/*
+image2latex/output_results*.txt
+image2latex/i2lenv/
+fcos/output_results*.txt
+logs/
+fcos/results/*
+fcos/checkpoints/*
+fcos/fcosenv/
+!image2latex/data/
