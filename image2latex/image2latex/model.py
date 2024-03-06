@@ -7,6 +7,7 @@ import pytorch_lightning as pl
 from torchaudio.functional import edit_distance
 from torchtext.data.metrics import bleu_score
 from evaluate import load
+from bayesian_torch.models.dnn_to_bnn import dnn_to_bnn, get_kl_loss
 
 
 class Image2LatexModel(pl.LightningModule):
@@ -16,7 +17,7 @@ class Image2LatexModel(pl.LightningModule):
         total_steps,
         n_class: int,
         enc_dim: int = 512,
-        enc_type: str = "conv_row_encoder",
+        enc_type: str = "conv_row_encoder", # "conv_row_encoder"
         emb_dim: int = 80,
         dec_dim: int = 512,
         attn_dim: int = 512,
@@ -30,8 +31,18 @@ class Image2LatexModel(pl.LightningModule):
         eos_id: int = 2,
         log_step: int = 100,
         log_text: bool = False,
+        bayesian: bool = False,
     ):
         super().__init__()
+        self.const_bnn_prior_parameters = {
+            "prior_mu": 0.0,
+            "prior_sigma": 1.0,
+            "posterior_mu_init": 0.0,
+            "posterior_rho_init": -3.0,
+            "type": "Reparameterization",  # Flipout or Reparameterization
+            "moped_enable": False,  # True to initialize mu/sigma from the pretrained dnn weights
+            "moped_delta": 0.5,
+        }
         self.model = Image2Latex(
             n_class,
             enc_dim,
@@ -47,7 +58,9 @@ class Image2LatexModel(pl.LightningModule):
             beam_width,
             sos_id,
             eos_id,
+            bayesian,
         )
+        # dnn_to_bnn(self.model, self.const_bnn_prior_parameters)
         self.criterion = nn.CrossEntropyLoss()
         self.lr = lr
         self.total_steps = total_steps

@@ -8,3 +8,4 @@ torchtext
 torchvision
 evaluate
 wandb
+bayesian-torch

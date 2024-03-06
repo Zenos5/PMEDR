@@ -42,7 +42,7 @@ if __name__ == "__main__":
     parser.add_argument("--random-state", type=int, default=12)
     parser.add_argument("--ckpt-path", type=str, default=None)
     parser.add_argument("--enc-type", type=str, default="conv_row_encoder")
-    # conv_row_encoder, conv_encoder, conv_bn_encoder
+    # conv_row_encoder, conv_encoder, conv_bn_encoder, resnet_row_encoder
     parser.add_argument("--enc-dim", type=int, default=512)
     parser.add_argument("--emb-dim", type=int, default=80)
     parser.add_argument("--attn-dim", type=int, default=512)
@@ -59,6 +59,7 @@ if __name__ == "__main__":
     parser.add_argument("--model-name", type=str, default="conv_lstm")
     parser.add_argument("--grad-clip", type=int, default=0)
     parser.add_argument("--num-workers", type=int, default=4)
+    parser.add_argument("--bayesian", type=bool, default=False)
 
     args = parser.parse_args()
 
@@ -134,17 +135,16 @@ if __name__ == "__main__":
         beam_width=args.beam_width,
         log_step=args.log_step,
         log_text=args.log_text,
+        bayesian=args.bayesian,
     )
 
-    # wandb_logger = pl.loggers.WandbLogger(
-    #     project="image2latex", name=args.model_name, log_model="all"
-    # )
     lr_monitor = pl.callbacks.LearningRateMonitor(logging_interval="step")
+    lr_stop = pl.callbacks.early_stopping.EarlyStopping(monitor="val_loss", mode="min")
 
     accumulate_grad_batches = args.accumulate_batch // args.batch_size
     trainer = pl.Trainer(
         logger=None, #wandb_logger,
-        callbacks=[lr_monitor],
+        callbacks=[lr_monitor, lr_stop],
         max_epochs=args.max_epochs,
         accelerator="gpu",
         strategy="ddp",
@@ -176,17 +176,6 @@ if __name__ == "__main__":
 
     if args.predict:
         print("=" * 10 + "[Predict]" + "=" * 10)
-        # print("Forward:")
-        # print(predict_set, len(predict_set))
-        # model.to(device)
-        # model.eval()
-        # batch = next(iter(dm.predict_dataloader()))
-        # with torch.no_grad():
-        #     images = [i.to(device) for i in batch]
-        #     predictions_single_batch = model.predict_step(images.to(device), 0)
-        #     # print(images)
-        #     print(predictions_single_batch)
         latex = trainer.predict(datamodule=dm, model=model, ckpt_path=ckpt_path)
         print(latex)
-        # trainer.evaluate(datamodule=dm, model=model, ckpt_path=ckpt_path)
         

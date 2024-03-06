@@ -1,6 +1,6 @@
 #!/bin/bash
 
-#SBATCH --time=4:00:00   # walltime.  hours:minutes:seconds
+#SBATCH --time=1:00:00   # walltime.  hours:minutes:seconds
 #SBATCH --ntasks=1   # number of processor cores (i.e. tasks)
 #SBATCH --nodes=1   # number of nodes
 #SBATCH --gpus=1
@@ -19,17 +19,20 @@ set -u
 # LOAD MODULES, INSERT CODE, AND RUN YOUR PROGRAMS HERE
 module load python/3.11
 
-DATAPATH="im2latex/im2latex-230k"
-IMGPATH="im2latex/im2latex-230k/formula_images"
-PREDIMGPATH="im2latex/im2latex-230k/formula_images"
-# DATAPATH="im2latex/im2latex-100k"
-# IMGPATH="im2latex/im2latex-100k/formula_images"
-# PREDIMGPATH="im2latex/im2latex-100k/formula_images"
-DATASET="230k"
-# DATASET="100k"
-DECODE_TYPE="beamsearch"
-CHECKPOINT="lightning_logs/version_5/checkpoints/epoch=83-step=13188.ckpt"
-cd $HOME/image2latex/
+# DATAPATH="../data/im2latex/im2latex-230k"
+# IMGPATH="../data/im2latex/im2latex-230k/formula_images"
+# PREDIMGPATH="../data/im2latex/im2latex-230k/formula_images"
+DATAPATH="../data/im2latex/im2latex-100k"
+IMGPATH="../data/im2latex/im2latex-100k/formula_images"
+PREDIMGPATH="../data/im2latex/im2latex-100k/formula_images"
+# DATASET="230k"
+DATASET="100k"
+DECODE_TYPE="beamsearch" #"greedy"
+BAYESIAN=true #false if removed from arguments # --bayesian $BAYESIAN \
+ENC_TYPE="conv_row_encoder" #"conv_row_encoder""resnet_row_encoder"
+CHECKPOINT="lightning_logs/version_62900005/checkpoints/epoch=25-step=4082.ckpt"
+# version_62758420 -> orig train full
+cd $HOME/PMEDR/image2latex/
 # python -m venv i2lenv
 source ./i2lenv/bin/activate
 
@@ -41,5 +44,6 @@ python main.py \
     --dataset $DATASET \
     --test \
     --decode-type $DECODE_TYPE \
-    --max-epochs 100 \
+    --enc-type $ENC_TYPE \
+    --max-epochs 50 \
     --ckpt-path $CHECKPOINT

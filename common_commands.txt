@@ -1,0 +1,6 @@
+Some common commands:
+./[script_name].sh -> executes script
+sbatch --output ./[output].txt --mail-user [email] --job-name "[job_name]" [script_name].sh -> submits job to the queue
+squeue -u [username] -> checks what jobs the user has running
+ssh [username]@[domain] -> connect to remote server // ssh aw742@scp.rc.byu.edu
+scp -r ./[file or directory] [username]@[domain]:[path/to/dir] -> copy file or directory from local to remote server

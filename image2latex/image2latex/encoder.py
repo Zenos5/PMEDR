@@ -1,10 +1,11 @@
 import torch
 from torch import nn, Tensor
 import torchvision
-
+from .utils import const_bnn_prior_parameters
+from bayesian_torch.models.dnn_to_bnn import dnn_to_bnn, get_kl_loss
 
 class ConvWithRowEncoder(nn.Module):
-    def __init__(self, enc_dim: int):
+    def __init__(self, enc_dim: int, bayesian: bool):
         super().__init__()
         self.feature_encoder = nn.Sequential(
             nn.Conv2d(3, 64, 1, 1),
@@ -21,8 +22,9 @@ class ConvWithRowEncoder(nn.Module):
             nn.Conv2d(512, 512, 3, 1, padding=1),
             nn.BatchNorm2d(512),
         )
-
         self.row_encoder = nn.LSTM(512, enc_dim, batch_first=True, bidirectional=True)
+        if bayesian:
+            dnn_to_bnn(self.row_encoder, const_bnn_prior_parameters)
 
         self.enc_dim = enc_dim * 2  # bidirectional = True
 
@@ -125,12 +127,14 @@ class ResNetEncoder(nn.Module):
 
 
 class ResNetWithRowEncoder(nn.Module):
-    def __init__(self, enc_dim: int):
+    def __init__(self, enc_dim: int, bayesian: bool):
         super().__init__()
         self.resnet = torchvision.models.resnet18()
         self.resnet = nn.Sequential(*list(self.resnet.children())[:-2])
 
         self.row_encoder = nn.LSTM(512, enc_dim, batch_first=True, bidirectional=True)
+        if bayesian:
+            dnn_to_bnn(self.row_encoder, const_bnn_prior_parameters)
 
         self.enc_dim = enc_dim * 2  # bidirectional = True
 

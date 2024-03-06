@@ -11,7 +11,7 @@ class Image2Latex(nn.Module):
         self,
         n_class: int,
         enc_dim: int = 512,
-        enc_type: str = "conv_row_encoder",
+        enc_type: str = "conv_row_encoder", # conv_row_encoder
         emb_dim: int = 80,
         dec_dim: int = 512,
         attn_dim: int = 512,
@@ -23,6 +23,7 @@ class Image2Latex(nn.Module):
         beam_width: int = 5,
         sos_id: int = 1,
         eos_id: int = 2,
+        bayesian: bool = False,
     ):
         assert enc_type in [
             "conv_row_encoder",
@@ -34,7 +35,7 @@ class Image2Latex(nn.Module):
         super().__init__()
         self.n_class = n_class
         if enc_type == "conv_row_encoder":
-            self.encoder = ConvWithRowEncoder(enc_dim=enc_dim)
+            self.encoder = ConvWithRowEncoder(enc_dim=enc_dim, bayesian=bayesian)
         elif enc_type == "conv_encoder":
             self.encoder = ConvEncoder(enc_dim=enc_dim)
         elif enc_type == "conv_bn_encoder":
@@ -42,7 +43,7 @@ class Image2Latex(nn.Module):
         elif enc_type == "resnet_encoder":
             self.encoder = ResNetEncoder(enc_dim=enc_dim)
         elif enc_type == "resnet_row_encoder":
-            self.encoder = ResNetWithRowEncoder(enc_dim=enc_dim)
+            self.encoder = ResNetWithRowEncoder(enc_dim=enc_dim, bayesian=bayesian)
         enc_dim = self.encoder.enc_dim
         self.num_layers = num_layers
         self.decoder = Decoder(
@@ -56,6 +57,7 @@ class Image2Latex(nn.Module):
             bidirectional=bidirectional,
             sos_id=sos_id,
             eos_id=eos_id,
+            bayesian=bayesian,
         )
         self.init_h = nn.Linear(enc_dim, dec_dim)
         self.init_c = nn.Linear(enc_dim, dec_dim)

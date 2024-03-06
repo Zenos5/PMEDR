@@ -1,7 +1,8 @@
 import torch
 from torch import nn, Tensor
 from .attention import Attention
-
+from .utils import const_bnn_prior_parameters
+from bayesian_torch.models.dnn_to_bnn import dnn_to_bnn, get_kl_loss
 
 class Decoder(nn.Module):
     def __init__(
@@ -16,6 +17,7 @@ class Decoder(nn.Module):
         bidirectional: bool = False,
         sos_id: int = 1,
         eos_id: int = 2,
+        bayesian: bool = False,
     ):
         super().__init__()
         self.sos_id = sos_id
@@ -31,6 +33,8 @@ class Decoder(nn.Module):
             bidirectional=bidirectional,
             dropout=dropout,
         )
+        if bayesian:
+            dnn_to_bnn(self.rnn, const_bnn_prior_parameters)
         # self.layernorm = nn.LayerNorm((dec_dim))
         self.out = nn.Linear(dec_dim, n_class)
         self.logsoftmax = nn.LogSoftmax(dim=-1)
