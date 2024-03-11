@@ -1,5 +1,5 @@
 import torch
-from torch import nn, Tensor
+from torch import nn
 from .im2latex import Image2Latex
 from .text import Text
 from .utils import exact_match
@@ -7,7 +7,6 @@ import pytorch_lightning as pl
 from torchaudio.functional import edit_distance
 from torchtext.data.metrics import bleu_score
 from evaluate import load
-from bayesian_torch.models.dnn_to_bnn import dnn_to_bnn, get_kl_loss
 
 
 class Image2LatexModel(pl.LightningModule):

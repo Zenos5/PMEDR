@@ -1,4 +1,3 @@
-import random
 import torch
 from torch import nn, Tensor
 from .decoder import Decoder

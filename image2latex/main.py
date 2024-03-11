@@ -1,10 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-import pandas as pd
 import torch
-from torch.utils.checkpoint import checkpoint
-from torch import nn, Tensor
 from image2latex.model import Image2LatexModel
 from data.dataset import LatexDataset, LatexPredictDataset
 from data.datamodule import DataModule
@@ -13,7 +10,6 @@ import pytorch_lightning as pl
 import argparse
 import numpy as np
 import time
-from torch.utils.data import DataLoader
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="training image2latex")

@@ -2,7 +2,7 @@ import torch
 from torch import nn, Tensor
 import torchvision
 from .utils import const_bnn_prior_parameters
-from bayesian_torch.models.dnn_to_bnn import dnn_to_bnn, get_kl_loss
+from bayesian_torch.models.dnn_to_bnn import dnn_to_bnn
 
 class ConvWithRowEncoder(nn.Module):
     def __init__(self, enc_dim: int, bayesian: bool):

@@ -1,8 +1,8 @@
 import torch
-from torch import nn, Tensor
+from torch import nn
 from .attention import Attention
 from .utils import const_bnn_prior_parameters
-from bayesian_torch.models.dnn_to_bnn import dnn_to_bnn, get_kl_loss
+from bayesian_torch.models.dnn_to_bnn import dnn_to_bnn
 
 class Decoder(nn.Module):
     def __init__(
