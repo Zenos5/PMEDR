@@ -94,19 +94,19 @@ if __name__ == "__main__":
         print("Using IBEM dataset")
         classes = getIBEMClasses()
 
-        j_file = 'IBEM/IBEM.json'
-        i_dir = 'IBEM/pages/'
+        j_file = '../data/IBEM/IBEM.json'
+        i_dir = '../data/IBEM/pages/'
         
-        train_lst = ['IBEM/partitions/a_cp/Tr00_cp.lst',
-            'IBEM/partitions/a_cp/Tr01_cp.lst',
-            'IBEM/partitions/a_cp/Tr10_cp.lst',
-            'IBEM/partitions/a_cp/Ts00_cp.lst',
-            'IBEM/partitions/a_cp/Ts01_cp.lst',
-            'IBEM/partitions/a_cp/Ts10_cp.lst',
-            'IBEM/partitions/a_cp/Va00_cp.lst'
-        ] # 'IBEM/partitions/a_cp/Ts11_cp.lst' for test, 'IBEM/partitions/a_cp/Va01_cp.lst' for val
+        train_lst = ['../data/IBEM/partitions/a_cp/Tr00_cp.lst',
+            '../data/IBEM/partitions/a_cp/Tr01_cp.lst',
+            '../data/IBEM/partitions/a_cp/Tr10_cp.lst',
+            '../data/IBEM/partitions/a_cp/Ts00_cp.lst',
+            '../data/IBEM/partitions/a_cp/Ts01_cp.lst',
+            '../data/IBEM/partitions/a_cp/Ts10_cp.lst',
+            '../data/IBEM/partitions/a_cp/Va00_cp.lst'
+        ] # '../data/IBEM/partitions/a_cp/Ts11_cp.lst' for test, '../data/IBEM/partitions/a_cp/Va01_cp.lst' for val
         train_dataset = IBEMDataset(lst_file=train_lst, json_file=j_file, img_dir=i_dir, device=device)
-        val_dataset = IBEMDataset(lst_file=['IBEM/partitions/a_cp/Va01_cp.lst'], json_file=j_file, img_dir=i_dir, device=device)
+        val_dataset = IBEMDataset(lst_file=['../data/IBEM/partitions/a_cp/Va01_cp.lst'], json_file=j_file, img_dir=i_dir, device=device)
     elif args.dataset == "COCO":
         print("Using COCO dataset")
         classes = ['__background__',
@@ -192,8 +192,8 @@ if __name__ == "__main__":
             'toothbrush'
         ]
 
-        train_dataset = COCODataset("COCO", "train", device)
-        val_dataset = COCODataset("COCO", "val", device)
+        train_dataset = COCODataset("../data/COCO", "train", device)
+        val_dataset = COCODataset("../data/COCO", "val", device)
 
     train_loader = DataLoader(train_dataset, batch_size=int(args.batch_size), shuffle=True, collate_fn=loader_collate)
     val_loader = DataLoader(val_dataset, batch_size=int(args.batch_size), shuffle=False, collate_fn=loader_collate)  

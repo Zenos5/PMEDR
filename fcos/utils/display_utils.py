@@ -73,6 +73,11 @@ def draw_boxes(boxes, labels, image):
         p1, p2 = (int(box[0]), int(box[1])), (int(box[2]), int(box[3]))
         color = COLORS[labels[i]]
         class_name = IBEM_CLASSES[labels[i]]
+
+        bbox = image[p1[1]:p2[1], p1[0]:p2[0]]
+        bbox_name = "x0_" + str(p1[0]) + "_x1_" + str(p2[0]) + "_y0_" + str(p1[1]) + "_y1_" + str(p2[1]) + ".jpg"
+        cv2.imwrite(os.path.join("results", bbox_name), bbox)
+
         cv2.rectangle(
             image,
             p1,
@@ -91,7 +96,7 @@ def draw_boxes(boxes, labels, image):
         
         outside = p1[1] - h >= 3
         p2 = p1[0] + w, p1[1] - h - 3 if outside else p1[1] + h + 3
-        
+
         cv2.rectangle(
             image, 
             p1, 

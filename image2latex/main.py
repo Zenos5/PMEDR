@@ -3,7 +3,7 @@
 
 import torch
 from image2latex.model import Image2LatexModel
-from data.dataset import LatexDataset, LatexPredictDataset
+from data.dataset import LatexDataset, LatexPredictDataset, LatexSinglePredictDataset
 from data.datamodule import DataModule
 from image2latex.text import Text100k, Text170k, Text230k
 import pytorch_lightning as pl
@@ -94,11 +94,19 @@ if __name__ == "__main__":
         n_sample=args.test_sample,
         dataset=args.dataset,
     )
-    predict_set = LatexPredictDataset(data_path=args.data_path,
-        img_path=args.img_path,
-        n_sample=args.test_sample,
-        dataset=args.dataset)
+    # predict_set = LatexPredictDataset(data_path=args.data_path,
+    #     img_path=args.img_path,
+    #     n_sample=args.test_sample,
+    #     dataset=args.dataset)
+    # print(predict_set, len(predict_set))
+    imfile = "../data/MSE/x0_103_x1_139_y0_263_y1_280_sharpened.jpg"
+    # imfile = "../data/MSE/x0_200_x1_554_y0_593_y1_653_sharpened.jpg"
+    print(imfile)
+    # /home/aw742/PMEDR/data/MSE/x0_247_x1_475_y0_292_y1_337_sharpened.jpg
+
+    predict_set = LatexSinglePredictDataset(imfile)
     print(predict_set, len(predict_set))
+    
 
     steps_per_epoch = round(len(train_set) / args.batch_size)
     total_steps = steps_per_epoch * args.max_epochs

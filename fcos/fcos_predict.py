@@ -36,11 +36,11 @@ if __name__ == "__main__":
     BATCH_SIZE=6
 
     # Path to IBEM annotations json file
-    j_file = 'IBEM/IBEM.json'
+    j_file = '../data/IBEM/IBEM.json'
     # Path to IBEM image directory
-    i_dir = 'IBEM/pages/'
+    i_dir = '../data/IBEM/pages/'
 
-    test_dataset = IBEMDataset(lst_file=['IBEM/partitions/a_cp/Ts11_cp.lst'], json_file=j_file, img_dir=i_dir, device=device)
+    test_dataset = IBEMDataset(lst_file=['../data/IBEM/partitions/a_cp/Ts11_cp.lst'], json_file=j_file, img_dir=i_dir, device=device)
     test_loader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle=False, collate_fn=loader_collate)
 
     # classes = [

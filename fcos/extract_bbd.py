@@ -9,20 +9,20 @@ import argparse
 from utils.data_utils import convert_json, check_page
 import math
 
-def extract_data(partition, lst_path):
+def extract_data(partition, lst_path, data_dir):
     lst_file = []
-    with open(lst_path, 'r') as f:
+    with open(data_dir + lst_path, 'r') as f:
         lst_file = f.read().splitlines()
     print(lst_file[-1])
     if lst_file[-1] is None:
         lst_file.pop()
-    json_file = convert_json('IBEM/IBEM.json')
-    img_dir = 'IBEM/pages/'
+    json_file = convert_json(data_dir + 'IBEM.json')
+    img_dir = data_dir + 'pages/'
     latex_dict = {}
     
-    save_path_bbmi = 'IBEM/bb/' + partition + 'images/'
-    save_path_bbml = 'IBEM/bb/' + partition
-    os.makedirs('IBEM/bb/', exist_ok=True)
+    save_path_bbmi = data_dir + 'bb/' + partition + 'images/'
+    save_path_bbml = data_dir + 'bb/' + partition
+    os.makedirs(data_dir + 'bb/', exist_ok=True)
     os.makedirs(save_path_bbml, exist_ok=True)
     os.makedirs(save_path_bbmi, exist_ok=True)
 
@@ -67,29 +67,30 @@ def extract_data(partition, lst_path):
 
 if __name__ == "__main__":
     print("Tr00/")
-    extract_data('Tr00/', 'IBEM/partitions/a_cp/Tr00_cp.lst')
+    data_dir = "../data/IBEM/"
+    extract_data('Tr00/', 'partitions/a_cp/Tr00_cp.lst', data_dir)
     # check_page('IBEM/partitions/a_cp/Tr00_cp.lst', 'IBEM/partitions/a_cpf/Tr00_cp.lst', 'IBEM/pages/')
     print("Tr01/")
-    extract_data('Tr01/', 'IBEM/partitions/a_cp/Tr01_cp.lst')
+    extract_data('Tr01/', 'partitions/a_cp/Tr01_cp.lst', data_dir)
     # check_page('IBEM/partitions/a_cp/Tr01_cp.lst', 'IBEM/partitions/a_cpf/Tr01_cp.lst', 'IBEM/pages/')
     print("Tr10/")
-    extract_data('Tr10/', 'IBEM/partitions/a_cp/Tr10_cp.lst')
+    extract_data('Tr10/', 'partitions/a_cp/Tr10_cp.lst', data_dir)
     # check_page('IBEM/partitions/a_cp/Tr10_cp.lst', 'IBEM/partitions/a_cpf/Tr10_cp.lst', 'IBEM/pages/')
     print("Ts01/")
-    extract_data('Ts01/', 'IBEM/partitions/a_cp/Ts01_cp.lst')
+    extract_data('Ts01/', 'partitions/a_cp/Ts01_cp.lst', data_dir)
     # check_page('IBEM/partitions/a_cp/Ts01_cp.lst', 'IBEM/partitions/a_cpf/Ts01_cp.lst', 'IBEM/pages/')
     print("Ts00/")
-    extract_data('Ts00/', 'IBEM/partitions/a_cp/Ts00_cp.lst')
+    extract_data('Ts00/', 'partitions/a_cp/Ts00_cp.lst', data_dir)
     # check_page('IBEM/partitions/a_cp/Ts00_cp.lst', 'IBEM/partitions/a_cpf/Ts00_cp.lst', 'IBEM/pages/')
     print("Ts11/")
-    extract_data('Ts11/', 'IBEM/partitions/a_cp/Ts11_cp.lst')
+    extract_data('Ts11/', 'partitions/a_cp/Ts11_cp.lst', data_dir)
     # check_page('IBEM/partitions/a_cp/Ts11_cp.lst', 'IBEM/partitions/a_cpf/Ts11_cp.lst', 'IBEM/pages/')
     print("Ts10/")
-    extract_data('Ts10/', 'IBEM/partitions/a_cp/Ts10_cp.lst')
+    extract_data('Ts10/', 'partitions/a_cp/Ts10_cp.lst', data_dir)
     # check_page('IBEM/partitions/a_cp/Ts10_cp.lst', 'IBEM/partitions/a_cpf/Ts10_cp.lst', 'IBEM/pages/')
     print("Va01/")
-    extract_data('Va01/', 'IBEM/partitions/a_cp/Va01_cp.lst')
+    extract_data('Va01/', 'partitions/a_cp/Va01_cp.lst', data_dir)
     # check_page('IBEM/partitions/a_cp/Va01_cp.lst', 'IBEM/partitions/a_cpf/Va01_cp.lst', 'IBEM/pages/')
     print("Va00/")
-    extract_data('Va00/', 'IBEM/partitions/a_cp/Va00_cp.lst')
+    extract_data('Va00/', 'partitions/a_cp/Va00_cp.lst', data_dir)
     # check_page('IBEM/partitions/a_cp/Va00_cp.lst', 'IBEM/partitions/a_cpf/Va00_cp.lst', 'IBEM/pages/')

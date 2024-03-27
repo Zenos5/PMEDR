@@ -30,7 +30,7 @@ DATASET="100k"
 DECODE_TYPE="beamsearch" #"greedy"
 BAYESIAN=true #false if removed from arguments # --bayesian $BAYESIAN \
 ENC_TYPE="conv_row_encoder" #"conv_row_encoder""resnet_row_encoder"
-CHECKPOINT="lightning_logs/version_62900005/checkpoints/epoch=25-step=4082.ckpt"
+CHECKPOINT="lightning_logs/version_62745862/checkpoints/epoch=24-step=3925.ckpt"
 # version_62758420 -> orig train full
 cd $HOME/PMEDR/image2latex/
 # python -m venv i2lenv
@@ -42,7 +42,7 @@ python main.py \
     --img-path $IMGPATH \
     --predict-img-path $PREDIMGPATH \
     --dataset $DATASET \
-    --test \
+    --predict \
     --decode-type $DECODE_TYPE \
     --enc-type $ENC_TYPE \
     --max-epochs 50 \

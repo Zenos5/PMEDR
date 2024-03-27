@@ -7,6 +7,7 @@ import math
 import os
 
 
+
 class LatexDataset(Dataset):
     def __init__(
         self, data_path, img_path, data_type: str, n_sample: int = None, dataset="100k"
@@ -73,6 +74,29 @@ class LatexPredictDataset(Dataset):
         item = self.walker[idx]
 
         image = torchvision.io.read_image(item["image"])
+        image = image.to(dtype=torch.float)
+        image /= image.max()
+        image = self.transform(image)  # transform image to [-1, 1]
+
+        return image
+
+class LatexSinglePredictDataset(Dataset):
+    def __init__(self, img_file):
+        super().__init__()
+        self.img_file = img_file
+            # else:
+            #     image = torchvision.io.read_image(item["image"])
+            #     if (image.shape[1] / 2**4) < 3 or (image.shape[2] / 2**4) < 3:
+            #         self.walker.remove(item)
+        # print("End:",len(self.walker))
+        self.transform = tvt.Compose([tvt.Normalize((0.5), (0.5)),])
+
+    def __len__(self):
+        return 1
+
+    def __getitem__(self, idx):
+
+        image = torchvision.io.read_image(self.img_file)
         image = image.to(dtype=torch.float)
         image /= image.max()
         image = self.transform(image)  # transform image to [-1, 1]

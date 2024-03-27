@@ -123,6 +123,47 @@ class IBEMDataset(Dataset):
         label_dict = {'boxes': torch.FloatTensor(b_box_list).to(self.device), 'labels': torch.tensor(label_list, dtype=torch.int64).to(self.device)}
         return [image, label_dict]
 
+class ImageDataset(Dataset):
+    """One image dataset."""
+
+    def __init__(self, img_file, label, bounding_box, device):
+        """
+        Calculates the average precision for the different recall and precision values.
+
+        :param lst_file: path to lst_file with image names to reference for dataset
+        :param json_file: path to the json file with labels and bounding box annotations
+        :param image_dir: path to directory where the images are stored
+        :param device: run on cpu or cuda
+        """ 
+        self.label = label
+        self.bounding_box = bounding_box
+        self.img_file = img_file
+        self.device = device
+        # print(self.lst_file)
+    def __len__(self):
+        """
+        Calculates number of entries in the dataset.
+
+        :return: length of the retrieved image set
+        """ 
+        return 1
+
+    def __getitem__(self, idx):
+        """
+        Returns the image and annotations for that image at a specified position in the dataset.
+
+        :param idx: index of image data to retrieve
+        :return: [image, dictionary containing bounding boxes and labels for that image]
+        """
+
+        img = cv2.imread(self.img_file)
+        image = transform(img).to(self.device)
+
+
+        label_dict = {'boxes': torch.FloatTensor([self.bounding_box]).to(self.device), 'labels': torch.tensor([self.label], dtype=torch.int64).to(self.device)}
+        return [image, label_dict]
+
+
 def has_only_empty_bbox(annot):
     return all(any(o <= 1 for o in obj['bbox'][2:]) for obj in annot)
 
