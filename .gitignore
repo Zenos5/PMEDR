@@ -8,3 +8,6 @@ fcos/results/*
 fcos/checkpoints/*
 fcos/fcosenv/
 !image2latex/data/
+word2vec/doc2vec/checkpoints/*
+word2vec/doc2vec/prev/
+word2vec/w2venv/

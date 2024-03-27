@@ -1,0 +1,6 @@
+Example: Word2vec/data/MSE_dataset_full/dataset_full/text/4604804/answers/4604809_3.0.txt
+Question - 4604804
+    The number is the question id
+Answer - 4604809_3.0.txt
+    The first number is the answer id
+    The second number is the score of the answer (total of positive and negative votes)
