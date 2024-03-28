@@ -133,7 +133,7 @@ if __name__ == "__main__":
     print("Dataset length:", len(test_dataset))
     print("Number of classes:", len(classes))
 
-    checkpoint_path = checkpoint_dir + "_ibem/checkpoint_epoch100_ibem.pth"
+    checkpoint_path = checkpoint_dir + "ibem_mod/checkpoint_epoch40_ibem.pth"
 
     model = None
     if checkpoint_path is not None:

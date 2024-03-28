@@ -19,7 +19,7 @@ set -u
 # LOAD MODULES, INSERT CODE, AND RUN YOUR PROGRAMS HERE
 module load python/3.11
 
-cd $HOME/FCOS/fcos-opencv/
+cd $HOME/PMEDR/fcos/
 source ./fcosenv/bin/activate
 
 # pip3 install pycocotools
