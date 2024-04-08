@@ -351,10 +351,10 @@ if __name__ == '__main__':
 
         print(f"\nTrue Answers to Question {d2v_testlist[d2v_rand_question]}")
         d2v_conf = answer_confidence(d2v_rand_question, d2v_model, d2v_qa_dict, d2v_testlist, d2v_trainlist,
-                                     d2v_test_corpus, d2v_train_corpus)
+                                     d2v_test_corpus)
 
         f2v_conf = answer_confidence(f2v_rand_question, f2v_model, f2v_qa_dict, f2v_testlist, f2v_trainlist,
-                                     f2v_test_corpus, f2v_train_corpus)
+                                     f2v_test_corpus)
 
         for key in d2v_conf.keys():
             overall_conf[key] = 0.5 * d2v_conf[key]
