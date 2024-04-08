@@ -19,7 +19,7 @@ set -u
 # LOAD MODULES, INSERT CODE, AND RUN YOUR PROGRAMS HERE
 module load python/3.11
 
-cd $HOME/Word2vec/
+cd $HOME/PMEDR/word2vec/
 
 source ./w2venv/bin/activate
 

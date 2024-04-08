@@ -357,7 +357,7 @@ def validate(loader, model, device, result_dir=None):
                     image = draw_boxes(boxes[j], labels[j], image)
                 save_name = 'batch' + str(i) + '_img' + str(j) + '.jpg'
                 # print(image)
-                cv2.imwrite(os.path.join(result_dir, save_name), image) #image[:, :, ::-1]
+                # cv2.imwrite(os.path.join(result_dir, save_name), image) #image[:, :, ::-1]
     mAP = np.mean(ap)
     mean_prec = np.mean(precision)
     mean_rec = np.mean(recall)

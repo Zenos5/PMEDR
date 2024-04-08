@@ -144,6 +144,7 @@ if __name__ == '__main__':
     parser.add_argument("--math-data-dir", type=str, default="../data/MSE_dataset_full/dataset_full/math/")
     parser.add_argument("--f2v-checkpoint", type=str, default="doc2vec/checkpoints/f2v_CBOW/f2v_50.model")
     parser.add_argument("--d2v-checkpoint", type=str, default="doc2vec/checkpoints/d2v_CBOW/d2v_50.model")
+    parser.add_argument("--question", type=str, default="")
     args = parser.parse_args()
     print("Processing")
 
@@ -320,8 +321,10 @@ if __name__ == '__main__':
 
         print("\nDoc2Vec:")
 
-
-        d2v_rand_question = random.randrange(len(d2v_testlist))
+        if len(args.question) <= 0:
+            d2v_rand_question = random.randrange(len(d2v_testlist))
+        else:
+            d2v_rand_question = d2v_testlist.index(args.question)
         while d2v_testlist[d2v_rand_question] not in f2v_testlist:
             d2v_rand_question = random.randrange(len(d2v_testlist))
         f2v_rand_question = f2v_testlist.index(d2v_testlist[d2v_rand_question])
@@ -338,7 +341,10 @@ if __name__ == '__main__':
         print("\nCOMPARE")
         overall_conf = {}
 
-        d2v_rand_question = random.randrange(len(d2v_testlist))
+        if len(args.question) <= 0:
+            d2v_rand_question = random.randrange(len(d2v_testlist))
+        else:
+            d2v_rand_question = d2v_testlist.index(args.question)
         while d2v_testlist[d2v_rand_question] not in f2v_testlist:
             d2v_rand_question = random.randrange(len(d2v_testlist))
         f2v_rand_question = f2v_testlist.index(d2v_testlist[d2v_rand_question])

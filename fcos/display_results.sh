@@ -19,11 +19,13 @@ set -u
 # pip3 install virtualenv
 module load python/3.11
 
-CHECKPOINT="checkpoints/_ibem/"
+CHECKPOINT="checkpoints/ibem_mod/"
+RESULTS="ibem_v2"
 
-cd $HOME/FCOS/fcos-opencv/
+cd $HOME/PMEDR/fcos/
 source ./fcosenv/bin/activate
 # python3 -m venv myenv
 
 python display_results.py \
-  -p $CHECKPOINT 
+  -p $CHECKPOINT \
+  -r $RESULTS

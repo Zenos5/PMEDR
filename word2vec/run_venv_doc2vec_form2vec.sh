@@ -19,7 +19,7 @@ set -u
 # LOAD MODULES, INSERT CODE, AND RUN YOUR PROGRAMS HERE
 module load python/3.11
 
-cd $HOME/Word2vec/
+cd $HOME/PMEDR/word2vec/
 
 source ./w2venv/bin/activate
 
@@ -27,6 +27,7 @@ MATH_DATADIR="../data/MSE_dataset_full/dataset_full/math/"
 F2V_CHECKPOINT="doc2vec/checkpoints/f2v_CBOW/f2v_50.model"
 TEXT_DATADIR="../data/MSE_dataset_full/dataset_full/text/"
 D2V_CHECKPOINT="doc2vec/checkpoints/d2v_CBOW/d2v_50.model"
+QUESTION_ID="8" #"3476324"
 #If include arg [--test 1], then is set to true
 
 #--compare 1 \
@@ -39,4 +40,5 @@ python doc2vec/doc2vec_form2vec.py \
     --d2v-checkpoint $D2V_CHECKPOINT \
     --f2v-checkpoint $F2V_CHECKPOINT \
     --eval 1 \
-    --compare 1
+    --compare 1\
+    --question $QUESTION_ID

@@ -25,6 +25,7 @@ def fig2img(fig):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument("-p", "--path", default="checkpoints/", help = "path to checkpoint")
+    parser.add_argument("-r", "--results", default="", help = "path to checkpoint")
     args = parser.parse_args()
     
 
@@ -33,24 +34,24 @@ if __name__ == "__main__":
 
     # fig = plot_losses(args.path + "train_loss.txt", "Training Loss per Epoch", "Epoch", "Loss")
     # img = fig2img(fig)
-    # img.save('results/_ibem/Losses_Graph.png') 
+    # img.save('results/' + args.results + '/Losses_Graph.png') 
 
     # fig = plot_losses(args.path + "val_prec.txt", "Precision per Epoch", "Epoch", "Precision")
     # img = fig2img(fig)
-    # img.save('results/_ibem/Precision_Graph.png') 
+    # img.save('results/' + args.results + '/Precision_Graph.png') 
 
     # fig = plot_losses(args.path + "val_rec.txt", "Recall per Epoch", "Epoch", "Recall")
     # img = fig2img(fig)
-    # img.save('results/_ibem/Recall_Graph.png')
+    # img.save('results/' + args.results + '/Recall_Graph.png')
 
-    # fig = plot_losses(args.path + "val_mAP.txt", "mAP per Epoch", "Epoch", "mAP")
-    # img = fig2img(fig)
-    # img.save('results/_ibem/mAP_Graph.png') 
+    fig = plot_losses(args.path + "val_mAP.txt", "mAP per Epoch", "Epoch", "mAP")
+    img = fig2img(fig)
+    img.save('results/' + args.results + '/mAP_Graph.png') 
 
     # Checkpoint 100
-    fig = plot_losses(args.path + "train_loss_100.txt", "Training Loss per Epoch", "Epoch", "Loss")
-    img = fig2img(fig)
-    img.save('results/_ibem/Losses_Graph_100.png') 
+    # fig = plot_losses(args.path + "train_loss_100.txt", "Training Loss per Epoch", "Epoch", "Loss")
+    # img = fig2img(fig)
+    # img.save('results/_ibem/Losses_Graph_100.png') 
 
     # fig = plot_losses(args.path + "val_prec_100.txt", "Precision per Epoch", "Epoch", "Precision")
     # img = fig2img(fig)

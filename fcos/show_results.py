@@ -12,7 +12,7 @@ if __name__ == "__main__":
     model = get_model(device, num_classes=len(IBEM_CLASSES))
     optim=torch.optim.Adam(model.parameters(), lr=1e-4)
 
-    checkpoint_path = "checkpoints/checkpoint_epoch5_run.pth"
+    checkpoint_path = "checkpoints/ibem_mod/checkpoint_epoch50_run.pth"
 
     if checkpoint_path is not None:
         _, _, _, train_loss, val_prec, val_rec, val_mAP = load_prog(checkpoint_path, model, optim)

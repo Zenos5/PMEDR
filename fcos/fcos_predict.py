@@ -22,7 +22,8 @@ import numpy as np
 
 if __name__ == "__main__":
     # Create result directory.
-    result_dir = 'results'
+    result_dir = 'results/bb'
+    # result_dir = None
     os.makedirs(result_dir, exist_ok=True)
     # Create checkpoint directory.
     checkpoint_dir = 'checkpoints/'
@@ -133,11 +134,11 @@ if __name__ == "__main__":
     print("Dataset length:", len(test_dataset))
     print("Number of classes:", len(classes))
 
-    checkpoint_path = checkpoint_dir + "ibem_mod/checkpoint_epoch40_ibem.pth"
+    checkpoint_path = checkpoint_dir + "ibem_mod/checkpoint_epoch50_ibem.pth"
 
     model = None
     if checkpoint_path is not None:
-        model, optim_weights, start_epoch, train_loss, val_prec, val_rec, val_mAP, val_i_prec, val_i_rec = load_prog(checkpoint_path, device, len(classes), "_ibem", score_thresh=0.2)
+        model, optim_weights, start_epoch, train_loss, val_prec, val_rec, val_mAP, val_i_prec, val_i_rec = load_prog(checkpoint_path, device, len(classes), "ibem_mod", score_thresh=0.2)
     else:
         model = get_model(device, num_classes=len(classes), score_thresh=0.2)
     
