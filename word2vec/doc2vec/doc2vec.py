@@ -5,6 +5,8 @@ import random
 import glob
 import pathlib
 import argparse
+import math
+import numpy as np
 from bs4 import BeautifulSoup
 
 # Training Corpus: Answers
@@ -56,6 +58,62 @@ def test_question(doc_id, model, qa_dict, testlist, trainlist, train_corpus):
         print(index)
         print(u'%s: «%s»\n' % (sims[index], ' '.join(train_corpus[answer_id].words)))
 
+def calc_metrics(sims_dict, ideal_dict):
+    count = 0
+    rel_pos = 0
+    p_1 = 0
+    p_3 = 0
+    p_5 = 0
+    p_10 = 0
+    dcg = []
+    idcg = []
+    ndcg = []
+    for key in sims_dict.keys()[:10]:
+        count += 1
+        if key in ideal_dict.keys():
+            if rel_pos == 0:
+                rel_pos = count
+            if count <= 1:
+                p_1 += 1
+                dcg.append[ideal_dict[key] * 1.0]
+            if count <= 3:
+                p_3 += 1
+            if count <= 5:
+                p_5 += 1
+            if count <= 10:
+                p_10 += 1
+            if count > 1:
+                dcg.append(dcg[-1] + ideal_dict[key] / math.log2(count))
+        else:
+            if count <= 1:
+                dcg.append(0.0)
+            else:
+                dcg.append(dcg[-1])
+    for i in range(10):
+        if len(ideal_dict.keys()) < i:
+            key = ideal_dict.keys()[i]
+            if i <= 0:
+                idcg.append(ideal_dict[key] * 1.0)
+            else:
+                idcg.append(idcg[-1] + ideal_dict[key] / math.log2(i + 1))
+        else:
+            idcg.append(idcg[-1])
+    rel_num = len(ideal_dict.keys())
+    rr = 0.0
+    if rel_pos > 0:
+        rr = 1.0 / rel_pos
+    precision = [p_1, p_3 / 3.0, p_5 / 5.0, p_10 / 10.0]
+    recall = [p_1 / rel_num, p_3 / rel_num, p_5 / rel_num, p_10 / rel_num]
+    
+    ndcg = [0.0 if idcg[0] == 0.0 else dcg[0] / idcg[0], 
+            0.0 if idcg[2] == 0.0 else dcg[2] / idcg[2], 
+            0.0 if idcg[4] == 0.0 else dcg[4] / idcg[4], 
+            0.0 if idcg[9] == 0.0 else dcg[9] / idcg[9]]
+    p_dcg = [dcg[0], dcg[2], dcg[4], dcg[9]]
+    i_dcg = [idcg[0], idcg[2], idcg[4], idcg[9]]
+
+    return precision, recall, rr, p_dcg, i_dcg, ndcg
+
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="running doc2vec")
@@ -65,6 +123,8 @@ if __name__ == '__main__':
     parser.add_argument("--assess", type=bool, default=False)
     parser.add_argument("--test", type=bool, default=False)
     parser.add_argument("--eval", type=bool, default=False)
+    parser.add_argument("--metrics", type=bool, default=False)
+    parser.add_argument("--question", type=str, default="")
     parser.add_argument("--data-dir", type=str, default="../data/MSE_dataset_full/dataset_full/text/")
     parser.add_argument("--checkpoint", type=str, default="doc2vec/checkpoints/d2v_40.model")
     parser.add_argument("--vector-size", type=int, default=50)
@@ -234,3 +294,79 @@ if __name__ == '__main__':
         print("\nEVAL")
         rand_question = random.randrange(len(testlist))
         test_question(rand_question, model, qa_dict, testlist, trainlist, train_corpus)
+    
+    if args.metrics:
+        print("\nMETRICS")
+        if len(args.question) <= 0:
+            a_prec = []
+            a_rec = []
+            mrr = []
+            a_dcg = []
+            a_idcg = []
+            a_ndcg = []
+            for q in testlist:
+                a_dict = {}
+                q_id = testlist.index(q)
+                inferred_vector = model.infer_vector(test_corpus[q_id])
+                sims = model.dv.most_similar([inferred_vector], topn=len(model.dv))
+                for a, sim in sims:
+                    a_dict[a] = sim
+                a_dict = sorted(a_dict.items(), key=lambda x: x[1], reverse=True)
+                ideal_dict = {}
+                for answer in qa_dict[q]:
+                    rank = int(answer[answer.rfind("_"):])
+                    ideal_dict[answer] = rank
+                for answer in qa_dict[q]:
+                    if answer not in ideal_dict.keys():
+                        rank = int(answer[answer.rfind("_"):])
+                        ideal_dict[answer] = rank
+                ideal_dict = sorted(ideal_dict.items(), key=lambda x: x[1], reverse=True)
+                precision, recall, rr, p_dcg, i_dcg, n_dcg = calc_metrics(a_dict, ideal_dict)
+                a_prec.append(precision)
+                a_rec.append(recall)
+                mrr.append(rr)
+                a_dcg.append(p_dcg)
+                a_idcg.append(i_dcg)
+                a_ndcg.append(n_dcg)
+            print("\nP@1 P@3 P@5 P@10")
+            print(np.mean(precision, axis=1))
+            print("\nR@1 R@3 R@5 R@10")
+            print(np.mean(recall, axis=1))
+            print("\nRR:", np.mean(rr))
+            print("\nDCG@1 DCG@3 DCG@5 DCG@10")
+            print(np.mean(p_dcg, axis=1))
+            print("\niDCG@1 iDCG@3 iDCG@5 iDCG@10")
+            print(np.mean(i_dcg, axis=1))
+            print("\nnDCG@1 nDCG@3 nDCG@5 nDCG@10")
+            print(np.mean(n_dcg, axis=1))
+        else:
+            a_dict = {}
+            if args.question in testlist:
+                q_id = testlist.index(args.question)
+                inferred_vector = model.infer_vector(test_corpus[q_id])
+                sims = model.dv.most_similar([inferred_vector], topn=len(model.dv))
+                for a, sim in sims:
+                    a_dict[a] = sim
+            a_dict = sorted(a_dict.items(), key=lambda x: x[1], reverse=True)
+            ideal_dict = {}
+            for answer in qa_dict[args.question]:
+                rank = int(answer[answer.rfind("_"):])
+                ideal_dict[answer] = rank
+            for answer in qa_dict[args.question]:
+                if answer not in ideal_dict.keys():
+                    rank = int(answer[answer.rfind("_"):])
+                    ideal_dict[answer] = rank
+            ideal_dict = sorted(ideal_dict.items(), key=lambda x: x[1], reverse=True)
+            precision, recall, rr, p_dcg, i_dcg, n_dcg = calc_metrics(a_dict, ideal_dict)
+
+            print("\nP@1 P@3 P@5 P@10")
+            print(precision)
+            print("\nR@1 R@3 R@5 R@10")
+            print(recall)
+            print("\nRR:", rr)
+            print("\nDCG@1 DCG@3 DCG@5 DCG@10")
+            print(p_dcg)
+            print("\niDCG@1 iDCG@3 iDCG@5 iDCG@10")
+            print(i_dcg)
+            print("\nnDCG@1 nDCG@3 nDCG@5 nDCG@10")
+            print(n_dcg)

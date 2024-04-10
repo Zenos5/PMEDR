@@ -7,6 +7,7 @@ import pathlib
 import argparse
 import numpy as np
 import re
+import math
 from bs4 import BeautifulSoup
 
 
@@ -116,7 +117,7 @@ def test_question(doc_id, model, qa_dict, testlist, trainlist, test_corpus, trai
 
     for answer in qa_dict[testlist[doc_id]]:
         answer_id = trainlist.index(answer)
-        index = [docid for docid, sim in sims].index(trainlist[answer_id])
+        index = [docid for docid, sim in sims].index(answer)
         print(index, sims[index])
         print(u'%s: «%s»\n' % (sims[index], ' '.join(train_corpus[answer_id].words)))
 
@@ -129,12 +130,67 @@ def answer_confidence(doc_id, model, qa_dict, testlist, trainlist, test_corpus):
 
     for answer in qa_dict[testlist[doc_id]]:
         answer_id = trainlist.index(answer)
-        index = [docid for docid, sim in sims].index(trainlist[answer_id])
+        index = [docid for docid, sim in sims].index(answer)
         print(index, sims[index], "=", sims[index][1])
         conf_dict[sims[index][0]] = sims[index][1]
 
-    return conf_dict
+    return conf_dict, sims
 
+def calc_metrics(sims_dict, ideal_dict):
+    count = 0
+    rel_pos = 0
+    p_1 = 0
+    p_3 = 0
+    p_5 = 0
+    p_10 = 0
+    dcg = []
+    idcg = []
+    ndcg = []
+    for key in sims_dict.keys()[:10]:
+        count += 1
+        if key in ideal_dict.keys():
+            if rel_pos == 0:
+                rel_pos = count
+            if count <= 1:
+                p_1 += 1
+                dcg.append[ideal_dict[key] * 1.0]
+            if count <= 3:
+                p_3 += 1
+            if count <= 5:
+                p_5 += 1
+            if count <= 10:
+                p_10 += 1
+            if count > 1:
+                dcg.append(dcg[-1] + ideal_dict[key] / math.log2(count))
+        else:
+            if count <= 1:
+                dcg.append(0.0)
+            else:
+                dcg.append(dcg[-1])
+    for i in range(10):
+        if len(ideal_dict.keys()) < i:
+            key = ideal_dict.keys()[i]
+            if i <= 0:
+                idcg.append(ideal_dict[key] * 1.0)
+            else:
+                idcg.append(idcg[-1] + ideal_dict[key] / math.log2(i + 1))
+        else:
+            idcg.append(idcg[-1])
+    rel_num = len(ideal_dict.keys())
+    rr = 0.0
+    if rel_pos > 0:
+        rr = 1.0 / rel_pos
+    precision = [p_1, p_3 / 3.0, p_5 / 5.0, p_10 / 10.0]
+    recall = [p_1 / rel_num, p_3 / rel_num, p_5 / rel_num, p_10 / rel_num]
+    
+    ndcg = [0.0 if idcg[0] == 0.0 else dcg[0] / idcg[0], 
+            0.0 if idcg[2] == 0.0 else dcg[2] / idcg[2], 
+            0.0 if idcg[4] == 0.0 else dcg[4] / idcg[4], 
+            0.0 if idcg[9] == 0.0 else dcg[9] / idcg[9]]
+    p_dcg = [dcg[0], dcg[2], dcg[4], dcg[9]]
+    i_dcg = [idcg[0], idcg[2], idcg[4], idcg[9]]
+
+    return precision, recall, rr, p_dcg, i_dcg, ndcg
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="running doc2vec combined with formula2vec")
@@ -325,11 +381,11 @@ if __name__ == '__main__':
 
         if len(args.question) <= 0:
             d2v_rand_question = random.randrange(len(d2v_testlist))
+            while d2v_testlist[d2v_rand_question] not in f2v_testlist:
+                d2v_rand_question = random.randrange(len(d2v_testlist))
         else:
             d2v_rand_question = d2v_testlist.index(args.question)
-        while d2v_testlist[d2v_rand_question] not in f2v_testlist:
-            d2v_rand_question = random.randrange(len(d2v_testlist))
-        f2v_rand_question = f2v_testlist.index(d2v_testlist[d2v_rand_question])
+        f2v_rand_question = f2v_testlist.index(args.question)
 
         test_question(d2v_rand_question, d2v_model, d2v_qa_dict, d2v_testlist, d2v_trainlist, d2v_test_corpus,
                       d2v_train_corpus)
@@ -345,18 +401,18 @@ if __name__ == '__main__':
 
         if len(args.question) <= 0:
             d2v_rand_question = random.randrange(len(d2v_testlist))
+            while d2v_testlist[d2v_rand_question] not in f2v_testlist:
+                d2v_rand_question = random.randrange(len(d2v_testlist))
         else:
             d2v_rand_question = d2v_testlist.index(args.question)
-        while d2v_testlist[d2v_rand_question] not in f2v_testlist:
-            d2v_rand_question = random.randrange(len(d2v_testlist))
-        f2v_rand_question = f2v_testlist.index(d2v_testlist[d2v_rand_question])
+        f2v_rand_question = f2v_testlist.index(args.question)
 
         print(f"\nTrue Answers to Question {d2v_testlist[d2v_rand_question]}")
         print("\nDoc2Vec:")
-        d2v_conf = answer_confidence(d2v_rand_question, d2v_model, d2v_qa_dict, d2v_testlist, d2v_trainlist,
+        d2v_conf, _ = answer_confidence(d2v_rand_question, d2v_model, d2v_qa_dict, d2v_testlist, d2v_trainlist,
                                      d2v_test_corpus)
         print("\nFormula2Vec:")
-        f2v_conf = answer_confidence(f2v_rand_question, f2v_model, f2v_qa_dict, f2v_testlist, f2v_trainlist,
+        f2v_conf, _ = answer_confidence(f2v_rand_question, f2v_model, f2v_qa_dict, f2v_testlist, f2v_trainlist,
                                      f2v_test_corpus)
 
         print()
@@ -377,3 +433,103 @@ if __name__ == '__main__':
             print("\t", overall_conf[key])
     
     if args.metrics:
+        print("\nMETRICS")
+        if len(args.question) <= 0:
+            q_set = set()
+            q_set.update(d2v_testlist)
+            q_set.update(f2v_testlist)
+            a_prec = []
+            a_rec = []
+            mrr = []
+            a_dcg = []
+            a_idcg = []
+            a_ndcg = []
+            for q in q_set:
+                a_dict = {}
+                if q in d2v_testlist:
+                    dq_id = d2v_testlist.index(q)
+                    inferred_vector = d2v_model.infer_vector(d2v_test_corpus[dq_id])
+                    d_sims = d2v_model.dv.most_similar([inferred_vector], topn=len(d2v_model.dv))
+                    for da, dsim in d_sims:
+                        a_dict[da] = 0.5 * dsim
+                if q in f2v_testlist:
+                    fq_id = f2v_testlist.index(q)
+                    inferred_vector = f2v_model.infer_vector(f2v_test_corpus[fq_id])
+                    f_sims = f2v_model.dv.most_similar([inferred_vector], topn=len(f2v_model.dv))
+                    for fa, fsim in f_sims:
+                        if fa in a_dict.keys():
+                            a_dict[fa] += 0.5 * fsim
+                        else:
+                            a_dict[fa] = 0.5 * fsim
+                if q not in f2v_testlist and q not in d2v_testlist:
+                    a_dict[da] = 0.0
+                a_dict = sorted(a_dict.items(), key=lambda x: x[1], reverse=True)
+                ideal_dict = {}
+                for answer in d2v_qa_dict[q]:
+                    rank = int(answer[answer.rfind("_"):])
+                    ideal_dict[answer] = rank
+                for answer in f2v_qa_dict[q]:
+                    if answer not in ideal_dict.keys():
+                        rank = int(answer[answer.rfind("_"):])
+                        ideal_dict[answer] = rank
+                ideal_dict = sorted(ideal_dict.items(), key=lambda x: x[1], reverse=True)
+                precision, recall, rr, p_dcg, i_dcg, n_dcg = calc_metrics(a_dict, ideal_dict)
+                a_prec.append(precision)
+                a_rec.append(recall)
+                mrr.append(rr)
+                a_dcg.append(p_dcg)
+                a_idcg.append(i_dcg)
+                a_ndcg.append(n_dcg)
+            print("\nP@1 P@3 P@5 P@10")
+            print(np.mean(precision, axis=1))
+            print("\nR@1 R@3 R@5 R@10")
+            print(np.mean(recall, axis=1))
+            print("\nRR:", np.mean(rr))
+            print("\nDCG@1 DCG@3 DCG@5 DCG@10")
+            print(np.mean(p_dcg, axis=1))
+            print("\niDCG@1 iDCG@3 iDCG@5 iDCG@10")
+            print(np.mean(i_dcg, axis=1))
+            print("\nnDCG@1 nDCG@3 nDCG@5 nDCG@10")
+            print(np.mean(n_dcg, axis=1))
+        else:
+            a_dict = {}
+            if args.question in d2v_testlist:
+                dq_id = d2v_testlist.index(args.question)
+                inferred_vector = d2v_model.infer_vector(d2v_test_corpus[dq_id])
+                d_sims = d2v_model.dv.most_similar([inferred_vector], topn=len(d2v_model.dv))
+                for da, dsim in d_sims:
+                    a_dict[da] = 0.5 * dsim
+            if args.question in f2v_testlist:
+                fq_id = f2v_testlist.index(args.question)
+                inferred_vector = f2v_model.infer_vector(f2v_test_corpus[fq_id])
+                f_sims = f2v_model.dv.most_similar([inferred_vector], topn=len(f2v_model.dv))
+                for fa, fsim in f_sims:
+                    if fa in a_dict.keys():
+                        a_dict[fa] += 0.5 * fsim
+                    else:
+                        a_dict[fa] = 0.5 * fsim
+            if args.question not in f2v_testlist and args.question not in d2v_testlist:
+                a_dict[da] = 0.0
+            a_dict = sorted(a_dict.items(), key=lambda x: x[1], reverse=True)
+            ideal_dict = {}
+            for answer in d2v_qa_dict[args.question]:
+                rank = int(answer[answer.rfind("_"):])
+                ideal_dict[answer] = rank
+            for answer in f2v_qa_dict[args.question]:
+                if answer not in ideal_dict.keys():
+                    rank = int(answer[answer.rfind("_"):])
+                    ideal_dict[answer] = rank
+            ideal_dict = sorted(ideal_dict.items(), key=lambda x: x[1], reverse=True)
+            precision, recall, rr, p_dcg, i_dcg, n_dcg = calc_metrics(a_dict, ideal_dict)
+
+            print("\nP@1 P@3 P@5 P@10")
+            print(precision)
+            print("\nR@1 R@3 R@5 R@10")
+            print(recall)
+            print("\nRR:", rr)
+            print("\nDCG@1 DCG@3 DCG@5 DCG@10")
+            print(p_dcg)
+            print("\niDCG@1 iDCG@3 iDCG@5 iDCG@10")
+            print(i_dcg)
+            print("\nnDCG@1 nDCG@3 nDCG@5 nDCG@10")
+            print(n_dcg)
