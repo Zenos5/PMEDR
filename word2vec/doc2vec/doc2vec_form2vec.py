@@ -117,7 +117,7 @@ def test_question(doc_id, model, qa_dict, testlist, trainlist, test_corpus, trai
     for answer in qa_dict[testlist[doc_id]]:
         answer_id = trainlist.index(answer)
         index = [docid for docid, sim in sims].index(trainlist[answer_id])
-        print(index)
+        print(index, sims[index])
         print(u'%s: «%s»\n' % (sims[index], ' '.join(train_corpus[answer_id].words)))
 
 
@@ -130,6 +130,7 @@ def answer_confidence(doc_id, model, qa_dict, testlist, trainlist, test_corpus):
     for answer in qa_dict[testlist[doc_id]]:
         answer_id = trainlist.index(answer)
         index = [docid for docid, sim in sims].index(trainlist[answer_id])
+        print(index, sims[index], "=", sims[index][1])
         conf_dict[sims[index][0]] = sims[index][1]
 
     return conf_dict
@@ -140,6 +141,7 @@ if __name__ == '__main__':
     parser.add_argument("--test", type=bool, default=False)
     parser.add_argument("--eval", type=bool, default=False)
     parser.add_argument("--compare", type=bool, default=False)
+    parser.add_argument("--metrics", type=bool, default=False)
     parser.add_argument("--text-data-dir", type=str, default="../data/MSE_dataset_full/dataset_full/text/")
     parser.add_argument("--math-data-dir", type=str, default="../data/MSE_dataset_full/dataset_full/math/")
     parser.add_argument("--f2v-checkpoint", type=str, default="doc2vec/checkpoints/f2v_CBOW/f2v_50.model")
@@ -350,21 +352,28 @@ if __name__ == '__main__':
         f2v_rand_question = f2v_testlist.index(d2v_testlist[d2v_rand_question])
 
         print(f"\nTrue Answers to Question {d2v_testlist[d2v_rand_question]}")
+        print("\nDoc2Vec:")
         d2v_conf = answer_confidence(d2v_rand_question, d2v_model, d2v_qa_dict, d2v_testlist, d2v_trainlist,
                                      d2v_test_corpus)
-
+        print("\nFormula2Vec:")
         f2v_conf = answer_confidence(f2v_rand_question, f2v_model, f2v_qa_dict, f2v_testlist, f2v_trainlist,
                                      f2v_test_corpus)
+
+        print()
+        print(d2v_conf.keys())
+        print(f2v_conf.keys())
 
         for key in d2v_conf.keys():
             overall_conf[key] = 0.5 * d2v_conf[key]
 
         for key in f2v_conf.keys():
             if key in overall_conf.keys():
-                overall_conf[key] += 0.5 * d2v_conf[key]
+                overall_conf[key] += 0.5 * f2v_conf[key]
             else:
-                overall_conf[key] = 0.5 * d2v_conf[key]
+                overall_conf[key] = 0.5 * f2v_conf[key]
 
         for key in overall_conf.keys():
             print(key)
             print("\t", overall_conf[key])
+    
+    if args.metrics:
