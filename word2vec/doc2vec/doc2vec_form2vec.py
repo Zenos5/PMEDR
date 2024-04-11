@@ -466,11 +466,11 @@ if __name__ == '__main__':
                 a_dict = sorted(a_dict.items(), key=lambda x: x[1], reverse=True)
                 ideal_dict = {}
                 for answer in d2v_qa_dict[q]:
-                    rank = int(answer[answer.rfind("_"):])
+                    rank = int(answer[answer.rfind("_")+1:])
                     ideal_dict[answer] = rank
                 for answer in f2v_qa_dict[q]:
                     if answer not in ideal_dict.keys():
-                        rank = int(answer[answer.rfind("_"):])
+                        rank = int(answer[answer.rfind("_")+1:])
                         ideal_dict[answer] = rank
                 ideal_dict = sorted(ideal_dict.items(), key=lambda x: x[1], reverse=True)
                 precision, recall, rr, p_dcg, i_dcg, n_dcg = calc_metrics(a_dict, ideal_dict)
@@ -513,11 +513,11 @@ if __name__ == '__main__':
             a_dict = sorted(a_dict.items(), key=lambda x: x[1], reverse=True)
             ideal_dict = {}
             for answer in d2v_qa_dict[args.question]:
-                rank = int(answer[answer.rfind("_"):])
+                rank = int(answer[answer.rfind("_")+1:])
                 ideal_dict[answer] = rank
             for answer in f2v_qa_dict[args.question]:
                 if answer not in ideal_dict.keys():
-                    rank = int(answer[answer.rfind("_"):])
+                    rank = int(answer[answer.rfind("_")+1:])
                     ideal_dict[answer] = rank
             ideal_dict = sorted(ideal_dict.items(), key=lambda x: x[1], reverse=True)
             precision, recall, rr, p_dcg, i_dcg, n_dcg = calc_metrics(a_dict, ideal_dict)
