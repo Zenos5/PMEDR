@@ -241,6 +241,7 @@ def write_to_sheet(excel_sheet, index, precision, recall, rr, p_dcg, i_dcg, n_dc
         excel_sheet.write(index, i + 16, i_dcg[i])
         excel_sheet.write(index, i + 21, n_dcg[i])
     excel_sheet.write(index, 26, rr)
+    return excel_sheet
 
 
 if __name__ == '__main__':
