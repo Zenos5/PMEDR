@@ -8,6 +8,8 @@ import argparse
 import math
 import numpy as np
 from bs4 import BeautifulSoup
+import xlwt 
+from xlwt import Workbook 
 
 # Training Corpus: Answers
 # Testing Corpus: Questions 
@@ -65,54 +67,102 @@ def calc_metrics(sims_dict, ideal_dict):
     p_3 = 0
     p_5 = 0
     p_10 = 0
+    p = 0
     dcg = []
     idcg = []
     ndcg = []
-    for key in sims_dict.keys()[:10]:
+
+    ideal_dict = np.array(ideal_dict)
+    #print(type(sims_dict), type(ideal_dict), sims_dict[0], ideal_dict[0])
+    # print(ideal_dict, ideal_dict[:, 0])
+    for key, _ in sims_dict:
         count += 1
-        if key in ideal_dict.keys():
+        if key in ideal_dict[:, 0]:
+            vote = int(ideal_dict[np.where(ideal_dict[:, 0] == key)[0][0]][1])
+            # print(f"Count {count}, Answer {key}, Vote Score {vote}, p {p}")
             if rel_pos == 0:
                 rel_pos = count
             if count <= 1:
                 p_1 += 1
-                dcg.append[ideal_dict[key] * 1.0]
+                dcg.append(vote * 1.0)
             if count <= 3:
                 p_3 += 1
             if count <= 5:
                 p_5 += 1
             if count <= 10:
                 p_10 += 1
+            p += 1
             if count > 1:
-                dcg.append(dcg[-1] + ideal_dict[key] / math.log2(count))
+                dcg.append(dcg[-1] + vote / math.log2(count))
         else:
             if count <= 1:
                 dcg.append(0.0)
             else:
                 dcg.append(dcg[-1])
-    for i in range(10):
-        if len(ideal_dict.keys()) < i:
-            key = ideal_dict.keys()[i]
+    for i in range(len(sims_dict)):
+        if ideal_dict.shape[0] >= i + 1:
             if i <= 0:
-                idcg.append(ideal_dict[key] * 1.0)
+                idcg.append(int(ideal_dict[i, 1]) * 1.0)
             else:
-                idcg.append(idcg[-1] + ideal_dict[key] / math.log2(i + 1))
+                idcg.append(idcg[-1] + int(ideal_dict[i, 1]) / math.log2(i + 1))
         else:
             idcg.append(idcg[-1])
-    rel_num = len(ideal_dict.keys())
+    rel_num = ideal_dict.shape[0]
     rr = 0.0
     if rel_pos > 0:
         rr = 1.0 / rel_pos
-    precision = [p_1, p_3 / 3.0, p_5 / 5.0, p_10 / 10.0]
-    recall = [p_1 / rel_num, p_3 / rel_num, p_5 / rel_num, p_10 / rel_num]
+    precision = [p_1, p_3 / 3.0, p_5 / 5.0, p_10 / 10.0, p / len(sims_dict)]
+    recall = [p_1 / rel_num, p_3 / rel_num, p_5 / rel_num, p_10 / rel_num, p / rel_num]
     
     ndcg = [0.0 if idcg[0] == 0.0 else dcg[0] / idcg[0], 
             0.0 if idcg[2] == 0.0 else dcg[2] / idcg[2], 
             0.0 if idcg[4] == 0.0 else dcg[4] / idcg[4], 
-            0.0 if idcg[9] == 0.0 else dcg[9] / idcg[9]]
-    p_dcg = [dcg[0], dcg[2], dcg[4], dcg[9]]
-    i_dcg = [idcg[0], idcg[2], idcg[4], idcg[9]]
+            0.0 if idcg[9] == 0.0 else dcg[9] / idcg[9], 
+            0.0 if idcg[-1] == 0.0 else dcg[-1] / idcg[-1]]
+    p_dcg = [dcg[0], dcg[2], dcg[4], dcg[9], dcg[-1]]
+    i_dcg = [idcg[0], idcg[2], idcg[4], idcg[9], idcg[-1]]
 
     return precision, recall, rr, p_dcg, i_dcg, ndcg
+
+def init_excel_sheet(wb):
+    sheet1 = wb.add_sheet('Sheet 1')
+    sheet1.write(0, 0, "Question/Metrics")
+    sheet1.write(0, 1, "P@1")
+    sheet1.write(0, 2, "P@3")
+    sheet1.write(0, 3, "P@5")
+    sheet1.write(0, 4, "P@10")
+    sheet1.write(0, 5, "P@all")
+    sheet1.write(0, 6, "R@1")
+    sheet1.write(0, 7, "R@3")
+    sheet1.write(0, 8, "R@5")
+    sheet1.write(0, 9, "R@10")
+    sheet1.write(0, 10, "R@all")
+    sheet1.write(0, 11, "DCG@1")
+    sheet1.write(0, 12, "DCG@3")
+    sheet1.write(0, 13, "DCG@5")
+    sheet1.write(0, 14, "DCG@10")
+    sheet1.write(0, 15, "DCG@all")
+    sheet1.write(0, 16, "iDCG@1")
+    sheet1.write(0, 17, "iDCG@3")
+    sheet1.write(0, 18, "iDCG@5")
+    sheet1.write(0, 19, "iDCG@10")
+    sheet1.write(0, 20, "iDCG@all")
+    sheet1.write(0, 21, "nDCG@1")
+    sheet1.write(0, 22, "nDCG@3")
+    sheet1.write(0, 23, "nDCG@5")
+    sheet1.write(0, 24, "nDCG@10")
+    sheet1.write(0, 25, "nDCG@all")
+    sheet1.write(0, 26, "RR")
+    return sheet1
+
+def write_to_sheet(excel_sheet, index, precision, recall, rr, p_dcg, i_dcg, n_dcg):
+    for i in range(5):
+        excel_sheet.write(index, i + 1, precision[i])
+        excel_sheet.write(index, i + 6, recall[i])
+        excel_sheet.write(index, i + 11, p_dcg[i])
+        excel_sheet.write(index, i + 16, i_dcg[i])
+        excel_sheet.write(index, i + 21, n_dcg[i])
+    excel_sheet.write(index, 26, rr)
 
 
 if __name__ == '__main__':
@@ -298,6 +348,9 @@ if __name__ == '__main__':
     if args.metrics:
         print("\nMETRICS")
         if len(args.question) <= 0:
+            index = 0
+            wb = Workbook()
+            excel_sheet = init_excel_sheet(wb)
             a_prec = []
             a_rec = []
             mrr = []
@@ -305,6 +358,8 @@ if __name__ == '__main__':
             a_idcg = []
             a_ndcg = []
             for q in testlist:
+                index += 1
+                excel_sheet.write(index, 0, q)
                 a_dict = {}
                 q_id = testlist.index(q)
                 inferred_vector = model.infer_vector(test_corpus[q_id])
@@ -318,23 +373,28 @@ if __name__ == '__main__':
                     ideal_dict[answer] = rank
                 ideal_dict = sorted(ideal_dict.items(), key=lambda x: x[1], reverse=True)
                 precision, recall, rr, p_dcg, i_dcg, n_dcg = calc_metrics(a_dict, ideal_dict)
+                excel_sheet = write_to_sheet(excel_sheet, index, precision, recall, rr, p_dcg, i_dcg, n_dcg)
                 a_prec.append(precision)
                 a_rec.append(recall)
                 mrr.append(rr)
                 a_dcg.append(p_dcg)
                 a_idcg.append(i_dcg)
                 a_ndcg.append(n_dcg)
-            print("\nP@1 P@3 P@5 P@10")
-            print(np.mean(precision, axis=1))
-            print("\nR@1 R@3 R@5 R@10")
-            print(np.mean(recall, axis=1))
-            print("\nRR:", np.mean(rr))
-            print("\nDCG@1 DCG@3 DCG@5 DCG@10")
-            print(np.mean(p_dcg, axis=1))
-            print("\niDCG@1 iDCG@3 iDCG@5 iDCG@10")
-            print(np.mean(i_dcg, axis=1))
-            print("\nnDCG@1 nDCG@3 nDCG@5 nDCG@10")
-            print(np.mean(n_dcg, axis=1))
+            
+            wb.save('d2v_metrics_allQA.xls')
+
+            print("\nMetrics for full question set")
+            print("\nP@1 P@3 P@5 P@10 P@all")
+            print(np.mean(a_prec, axis=0))
+            print("\nR@1 R@3 R@5 R@10 R@all")
+            print(np.mean(a_rec, axis=0))
+            print("\nMRR:", np.mean(mrr))
+            print("\nDCG@1 DCG@3 DCG@5 DCG@10 DCG@all")
+            print(np.mean(a_dcg, axis=0))
+            print("\niDCG@1 iDCG@3 iDCG@5 iDCG@10 iDCG@all")
+            print(np.mean(a_idcg, axis=0))
+            print("\nnDCG@1 nDCG@3 nDCG@5 nDCG@10 nDCG@all")
+            print(np.mean(a_ndcg, axis=0))
         else:
             a_dict = {}
             if args.question in testlist:
@@ -351,14 +411,15 @@ if __name__ == '__main__':
             ideal_dict = sorted(ideal_dict.items(), key=lambda x: x[1], reverse=True)
             precision, recall, rr, p_dcg, i_dcg, n_dcg = calc_metrics(a_dict, ideal_dict)
 
-            print("\nP@1 P@3 P@5 P@10")
+            print("\nMetrics for question", args.question)
+            print("\nP@1 P@3 P@5 P@10 P@all")
             print(precision)
-            print("\nR@1 R@3 R@5 R@10")
+            print("\nR@1 R@3 R@5 R@10 R@all")
             print(recall)
             print("\nRR:", rr)
-            print("\nDCG@1 DCG@3 DCG@5 DCG@10")
+            print("\nDCG@1 DCG@3 DCG@5 DCG@10 DCG@all")
             print(p_dcg)
-            print("\niDCG@1 iDCG@3 iDCG@5 iDCG@10")
+            print("\niDCG@1 iDCG@3 iDCG@5 iDCG@10 iDCG@all")
             print(i_dcg)
-            print("\nnDCG@1 nDCG@3 nDCG@5 nDCG@10")
+            print("\nnDCG@1 nDCG@3 nDCG@5 nDCG@10 nDCG@all")
             print(n_dcg)

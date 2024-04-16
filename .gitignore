@@ -11,3 +11,8 @@ fcos/fcosenv/
 word2vec/doc2vec/checkpoints/*
 word2vec/doc2vec/prev/
 word2vec/w2venv/
+word2vec/baseline/lda_15_3_4/
+word2vec/baseline/__pycache__
+word2vec/baseline/w2vbaseenv/
+!word2vec/baseline/requirements.txt
+word2vec/baseline/*.txt

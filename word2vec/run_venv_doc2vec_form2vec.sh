@@ -33,11 +33,12 @@ QUESTION_ID="8" #"3476324" #"8"
 #--compare 1 \
 #--test 1 \
 #--assess 1 \
+#--question $QUESTION_ID
 
 python doc2vec/doc2vec_form2vec.py \
     --text-data-dir $TEXT_DATADIR \
     --math-data-dir $MATH_DATADIR \
     --d2v-checkpoint $D2V_CHECKPOINT \
     --f2v-checkpoint $F2V_CHECKPOINT \
-    --metrics 1\
-    --question $QUESTION_ID
+    --metrics 1
+

@@ -24,7 +24,7 @@ cd $HOME/PMEDR/word2vec/
 source ./w2venv/bin/activate
 
 DATADIR="../data/MSE_dataset_full/dataset_full/math/"
-CHECKPOINT="doc2vec/checkpoints/f2v_50.model"
+CHECKPOINT="doc2vec/checkpoints/f2v_CBOW/f2v_50.model"
 #If include arg [--train 1], then is set to true
 
 #--train 1 \
@@ -38,9 +38,7 @@ python doc2vec/formula2vec.py \
     --data-dir $DATADIR \
     --checkpoint $CHECKPOINT \
     --vector-size 50 \
-    --train 1 \
-    --test 1 \
-    --eval 1 \
+    --metrics 1 \
     --min-count 2 \
     --strategy 0 \
     --neg-sample 5 \

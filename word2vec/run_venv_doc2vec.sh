@@ -24,7 +24,7 @@ cd $HOME/PMEDR/word2vec/
 source ./w2venv/bin/activate
 
 DATADIR="../data/MSE_dataset_full/dataset_full/text/"
-CHECKPOINT="doc2vec/checkpoints/d2v_50.model"
+CHECKPOINT="doc2vec/checkpoints/d2v_CBOW/d2v_50.model"
 #If include arg [--train 1], then is set to true
 
 python doc2vec/doc2vec.py \
@@ -35,8 +35,6 @@ python doc2vec/doc2vec.py \
     --vector-size 50 \
     --min-count 2 \
     --strategy 0 \
-    --train 1 \
-    --test 1 \
-    --eval 1 \
+    --metrics 1 \
     --neg-sample 5 \
     --hier-sm 0
