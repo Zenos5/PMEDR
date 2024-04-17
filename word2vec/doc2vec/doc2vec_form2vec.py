@@ -151,12 +151,15 @@ def calc_metrics(sims_dict, ideal_dict):
     ndcg = []
 
     ideal_dict = np.array(ideal_dict)
+    voter_scores = [int(i) for i in ideal_dict[:, 1]]
+    min_val = np.min(voter_scores)
     #print(type(sims_dict), type(ideal_dict), sims_dict[0], ideal_dict[0])
     # print(ideal_dict, ideal_dict[:, 0])
     for key, _ in sims_dict:
         count += 1
         if key in ideal_dict[:, 0]:
             vote = int(ideal_dict[np.where(ideal_dict[:, 0] == key)[0][0]][1])
+            vote = vote - min_val + 1 # subtracts min value to get rid of negative scores, +1 to keep from ranking as irrelevant
             # print(f"Count {count}, Answer {key}, Vote Score {vote}, p {p}")
             if rel_pos == 0:
                 rel_pos = count
@@ -202,9 +205,40 @@ def calc_metrics(sims_dict, ideal_dict):
 
     return precision, recall, rr, p_dcg, i_dcg, ndcg
 
-def init_excel_sheet(wb):
-    sheet1 = wb.add_sheet('Sheet 1')
+def init_excel_sheet(wb, sheet_name):
+    sheet1 = wb.add_sheet(sheet_name)
     sheet1.write(0, 0, "Question/Metrics")
+    sheet1.write(0, 1, "P@1")
+    sheet1.write(0, 2, "P@3")
+    sheet1.write(0, 3, "P@5")
+    sheet1.write(0, 4, "P@10")
+    sheet1.write(0, 5, "P@all")
+    sheet1.write(0, 6, "R@1")
+    sheet1.write(0, 7, "R@3")
+    sheet1.write(0, 8, "R@5")
+    sheet1.write(0, 9, "R@10")
+    sheet1.write(0, 10, "R@all")
+    sheet1.write(0, 11, "DCG@1")
+    sheet1.write(0, 12, "DCG@3")
+    sheet1.write(0, 13, "DCG@5")
+    sheet1.write(0, 14, "DCG@10")
+    sheet1.write(0, 15, "DCG@all")
+    sheet1.write(0, 16, "iDCG@1")
+    sheet1.write(0, 17, "iDCG@3")
+    sheet1.write(0, 18, "iDCG@5")
+    sheet1.write(0, 19, "iDCG@10")
+    sheet1.write(0, 20, "iDCG@all")
+    sheet1.write(0, 21, "nDCG@1")
+    sheet1.write(0, 22, "nDCG@3")
+    sheet1.write(0, 23, "nDCG@5")
+    sheet1.write(0, 24, "nDCG@10")
+    sheet1.write(0, 25, "nDCG@all")
+    sheet1.write(0, 26, "RR")
+    return sheet1
+
+def init_cumulative_excel_sheet(wb):
+    sheet1 = wb.add_sheet('Cumulative Metrics')
+    sheet1.write(0, 0, "Model/Metrics")
     sheet1.write(0, 1, "P@1")
     sheet1.write(0, 2, "P@3")
     sheet1.write(0, 3, "P@5")
@@ -242,7 +276,6 @@ def write_to_sheet(excel_sheet, index, precision, recall, rr, p_dcg, i_dcg, n_dc
         excel_sheet.write(index, i + 21, n_dcg[i])
     excel_sheet.write(index, 26, rr)
     return excel_sheet
-
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="running doc2vec combined with formula2vec")
@@ -498,35 +531,56 @@ if __name__ == '__main__':
         if len(args.question) <= 0:
             index = 0
             wb = Workbook()
-            excel_sheet = init_excel_sheet(wb)
+            excel_sheet = init_excel_sheet(wb, "Doc2vec")
+            excel_sheet2 = init_excel_sheet(wb, "Formula2vec")
+            excel_sheet3 = init_excel_sheet(wb, "Combined")
+            excel_sheet4 = init_cumulative_excel_sheet(wb)
             a_prec = []
             a_rec = []
             mrr = []
             a_dcg = []
             a_idcg = []
             a_ndcg = []
+            d_prec = []
+            d_rec = []
+            d_mrr = []
+            d_dcg = []
+            d_idcg = []
+            d_ndcg = []
+            f_prec = []
+            f_rec = []
+            f_mrr = []
+            f_dcg = []
+            f_idcg = []
+            f_ndcg = []
             for q in q_set:
                 index += 1
                 excel_sheet.write(index, 0, q)
+                excel_sheet2.write(index, 0, q)
+                excel_sheet3.write(index, 0, q)
                 a_dict = {}
+                d_dict = {}
+                f_dict = {}
                 if q in d2v_testlist:
                     dq_id = d2v_testlist.index(q)
                     inferred_vector = d2v_model.infer_vector(d2v_test_corpus[dq_id])
                     d_sims = d2v_model.dv.most_similar([inferred_vector], topn=len(d2v_model.dv))
                     for da, dsim in d_sims:
                         a_dict[da] = dsim
+                        d_dict[da] = dsim
                 if q in f2v_testlist:
                     fq_id = f2v_testlist.index(q)
                     inferred_vector = f2v_model.infer_vector(f2v_test_corpus[fq_id])
                     f_sims = f2v_model.dv.most_similar([inferred_vector], topn=len(f2v_model.dv))
                     for fa, fsim in f_sims:
+                        f_dict[fa] = fsim
                         if fa in a_dict.keys():
                             a_dict[fa] += fsim
                         else:
                             a_dict[fa] = fsim
-                if q not in f2v_testlist and q not in d2v_testlist:
-                    a_dict[da] = 0.0
                 a_dict = sorted(a_dict.items(), key=lambda x: x[1], reverse=True)
+                d_dict = sorted(d_dict.items(), key=lambda x: x[1], reverse=True)
+                f_dict = sorted(f_dict.items(), key=lambda x: x[1], reverse=True)
                 ideal_dict = {}
                 for answer in d2v_qa_dict[q]:
                     rank = int(answer[answer.rfind("_")+1:])
@@ -537,30 +591,82 @@ if __name__ == '__main__':
                             rank = int(answer[answer.rfind("_")+1:])
                             ideal_dict[answer] = rank
                 ideal_dict = sorted(ideal_dict.items(), key=lambda x: x[1], reverse=True)
+                d_ideal_dict = {}
+                for answer in d2v_qa_dict[q]:
+                    rank = int(answer[answer.rfind("_")+1:])
+                    d_ideal_dict[answer] = rank
+                d_ideal_dict = sorted(d_ideal_dict.items(), key=lambda x: x[1], reverse=True)
+                f_ideal_dict = {}
+                for answer in f2v_qa_dict[q]:
+                    rank = int(answer[answer.rfind("_")+1:])
+                    f_ideal_dict[answer] = rank
+                f_ideal_dict = sorted(f_ideal_dict.items(), key=lambda x: x[1], reverse=True)
                 precision, recall, rr, p_dcg, i_dcg, n_dcg = calc_metrics(a_dict, ideal_dict)
-                excel_sheet = write_to_sheet(excel_sheet, index, precision, recall, rr, p_dcg, i_dcg, n_dcg)
+                excel_sheet3 = write_to_sheet(excel_sheet3, index, precision, recall, rr, p_dcg, i_dcg, n_dcg)
                 a_prec.append(precision)
                 a_rec.append(recall)
                 mrr.append(rr)
                 a_dcg.append(p_dcg)
                 a_idcg.append(i_dcg)
                 a_ndcg.append(n_dcg)
+                precision, recall, rr, p_dcg, i_dcg, n_dcg = calc_metrics(d_dict, d_ideal_dict)
+                excel_sheet = write_to_sheet(excel_sheet, index, precision, recall, rr, p_dcg, i_dcg, n_dcg)
+                d_prec.append(precision)
+                d_rec.append(recall)
+                d_mrr.append(rr)
+                d_dcg.append(p_dcg)
+                d_idcg.append(i_dcg)
+                d_ndcg.append(n_dcg)
+                if(len(f_ideal_dict) > 0):
+                    precision, recall, rr, p_dcg, i_dcg, n_dcg = calc_metrics(f_dict, f_ideal_dict)
+                    excel_sheet2 = write_to_sheet(excel_sheet2, index, precision, recall, rr, p_dcg, i_dcg, n_dcg)
+                    f_prec.append(precision)
+                    f_rec.append(recall)
+                    f_mrr.append(rr)
+                    f_dcg.append(p_dcg)
+                    f_idcg.append(i_dcg)
+                    f_ndcg.append(n_dcg)
             
+            excel_sheet4.write(1, 0, "doc2vec")
+            avg_prec = np.mean(d_prec, axis=0)
+            avg_rec = np.mean(d_rec, axis=0)
+            avg_dcg = np.mean(d_dcg, axis=0)
+            avg_idcg = np.mean(d_idcg, axis=0)
+            avg_ndcg = np.mean(d_ndcg, axis=0)
+            avg_rr = np.mean(d_mrr)
+            excel_sheet4 = write_to_sheet(excel_sheet4, 1, avg_prec, avg_rec, avg_rr, avg_dcg, avg_idcg, avg_ndcg)
+            excel_sheet4.write(2, 0, "formula2vec")
+            avg_prec = np.mean(f_prec, axis=0)
+            avg_rec = np.mean(f_rec, axis=0)
+            avg_dcg = np.mean(f_dcg, axis=0)
+            avg_idcg = np.mean(f_idcg, axis=0)
+            avg_ndcg = np.mean(f_ndcg, axis=0)
+            avg_rr = np.mean(f_mrr)
+            excel_sheet4 = write_to_sheet(excel_sheet4, 2, avg_prec, avg_rec, avg_rr, avg_dcg, avg_idcg, avg_ndcg)
+            excel_sheet4.write(3, 0, "combined")
+            avg_prec = np.mean(a_prec, axis=0)
+            avg_rec = np.mean(a_rec, axis=0)
+            avg_dcg = np.mean(a_dcg, axis=0)
+            avg_idcg = np.mean(a_idcg, axis=0)
+            avg_ndcg = np.mean(a_ndcg, axis=0)
+            avg_rr = np.mean(mrr)
+            excel_sheet4 = write_to_sheet(excel_sheet4, 3, avg_prec, avg_rec, avg_rr, avg_dcg, avg_idcg, avg_ndcg)
+
             # print(a_prec.shape)
-            wb.save('d2v_f2v_metrics_allQA.xls') 
+            wb.save('d2v_f2v_metrics.xls') 
 
             print("\nMetrics for full question set")
             print("\nP@1 P@3 P@5 P@10 P@all")
-            print(np.mean(a_prec, axis=0))
+            print(avg_prec)
             print("\nR@1 R@3 R@5 R@10 R@all")
-            print(np.mean(a_rec, axis=0))
-            print("\nMRR:", np.mean(mrr))
+            print(avg_rec)
+            print("\nMRR:", avg_rr)
             print("\nDCG@1 DCG@3 DCG@5 DCG@10 DCG@all")
-            print(np.mean(a_dcg, axis=0))
+            print(avg_dcg)
             print("\niDCG@1 iDCG@3 iDCG@5 iDCG@10 iDCG@all")
-            print(np.mean(a_idcg, axis=0))
+            print(avg_idcg)
             print("\nnDCG@1 nDCG@3 nDCG@5 nDCG@10 nDCG@all")
-            print(np.mean(a_ndcg, axis=0))
+            print(avg_ndcg)
         else:
             a_dict = {}
             if args.question in d2v_testlist:
@@ -568,16 +674,16 @@ if __name__ == '__main__':
                 inferred_vector = d2v_model.infer_vector(d2v_test_corpus[dq_id])
                 d_sims = d2v_model.dv.most_similar([inferred_vector], topn=len(d2v_model.dv))
                 for da, dsim in d_sims:
-                    a_dict[da] = 0.5 * dsim
+                    a_dict[da] = dsim
             if args.question in f2v_testlist:
                 fq_id = f2v_testlist.index(args.question)
                 inferred_vector = f2v_model.infer_vector(f2v_test_corpus[fq_id])
                 f_sims = f2v_model.dv.most_similar([inferred_vector], topn=len(f2v_model.dv))
                 for fa, fsim in f_sims:
                     if fa in a_dict.keys():
-                        a_dict[fa] += 0.5 * fsim
+                        a_dict[fa] += fsim
                     else:
-                        a_dict[fa] = 0.5 * fsim
+                        a_dict[fa] = fsim
             if args.question not in f2v_testlist and args.question not in d2v_testlist:
                 a_dict[da] = 0.0
             a_dict = sorted(a_dict.items(), key=lambda x: x[1], reverse=True)

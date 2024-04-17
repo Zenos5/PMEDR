@@ -102,12 +102,16 @@ def calc_metrics(sims_dict, ideal_dict):
     ndcg = []
 
     ideal_dict = np.array(ideal_dict)
+    # voter_scores = ideal_dict[:, 1]
+    voter_scores = [int(i) for i in ideal_dict[:, 1]]
+    min_val = np.min(voter_scores)
     #print(type(sims_dict), type(ideal_dict), sims_dict[0], ideal_dict[0])
     # print(ideal_dict, ideal_dict[:, 0])
     for key, _ in sims_dict:
         count += 1
         if key in ideal_dict[:, 0]:
             vote = int(ideal_dict[np.where(ideal_dict[:, 0] == key)[0][0]][1])
+            vote = vote - min_val + 1 # subtracts min value to get rid of negative scores, +1 to keep from ranking as irrelevant
             # print(f"Count {count}, Answer {key}, Vote Score {vote}, p {p}")
             if rel_pos == 0:
                 rel_pos = count
@@ -398,12 +402,12 @@ if __name__ == '__main__':
                 if(len(ideal_dict) > 0):
                     precision, recall, rr, p_dcg, i_dcg, n_dcg = calc_metrics(a_dict, ideal_dict)
                     excel_sheet = write_to_sheet(excel_sheet, index, precision, recall, rr, p_dcg, i_dcg, n_dcg)
-                a_prec.append(precision)
-                a_rec.append(recall)
-                mrr.append(rr)
-                a_dcg.append(p_dcg)
-                a_idcg.append(i_dcg)
-                a_ndcg.append(n_dcg)
+                    a_prec.append(precision)
+                    a_rec.append(recall)
+                    mrr.append(rr)
+                    a_dcg.append(p_dcg)
+                    a_idcg.append(i_dcg)
+                    a_ndcg.append(n_dcg)
 
             wb.save('f2v_metrics_allQA.xls')
 
