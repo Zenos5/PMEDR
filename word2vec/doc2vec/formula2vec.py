@@ -102,7 +102,6 @@ def calc_metrics(sims_dict, ideal_dict):
     ndcg = []
 
     ideal_dict = np.array(ideal_dict)
-    # voter_scores = ideal_dict[:, 1]
     voter_scores = [int(i) for i in ideal_dict[:, 1]]
     min_val = np.min(voter_scores)
     #print(type(sims_dict), type(ideal_dict), sims_dict[0], ideal_dict[0])
@@ -134,10 +133,11 @@ def calc_metrics(sims_dict, ideal_dict):
                 dcg.append(dcg[-1])
     for i in range(len(sims_dict)):
         if ideal_dict.shape[0] >= i + 1:
+            vote = int(ideal_dict[i, 1]) * 1.0 - min_val + 1
             if i <= 0:
-                idcg.append(int(ideal_dict[i, 1]) * 1.0)
+                idcg.append(vote)
             else:
-                idcg.append(idcg[-1] + int(ideal_dict[i, 1]) / math.log2(i + 1))
+                idcg.append(idcg[-1] + vote / math.log2(i + 1))
         else:
             idcg.append(idcg[-1])
     rel_num = ideal_dict.shape[0]
@@ -399,7 +399,7 @@ if __name__ == '__main__':
                     rank = int(answer[answer.rfind("_")+1:])
                     ideal_dict[answer] = rank
                 ideal_dict = sorted(ideal_dict.items(), key=lambda x: x[1], reverse=True)
-                if(len(ideal_dict) > 0):
+                if(len(ideal_dict) > 0 and len(a_dict) > 0):
                     precision, recall, rr, p_dcg, i_dcg, n_dcg = calc_metrics(a_dict, ideal_dict)
                     excel_sheet = write_to_sheet(excel_sheet, index, precision, recall, rr, p_dcg, i_dcg, n_dcg)
                     a_prec.append(precision)
