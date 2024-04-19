@@ -40,5 +40,6 @@ python doc2vec/doc2vec_form2vec.py \
     --math-data-dir $MATH_DATADIR \
     --d2v-checkpoint $D2V_CHECKPOINT \
     --f2v-checkpoint $F2V_CHECKPOINT \
-    --metrics 1
+    --metrics 1 \
+    --question $QUESTION_ID
 

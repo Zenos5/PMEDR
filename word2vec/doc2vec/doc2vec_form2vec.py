@@ -182,10 +182,11 @@ def calc_metrics(sims_dict, ideal_dict):
                 dcg.append(dcg[-1])
     for i in range(len(sims_dict)):
         if ideal_dict.shape[0] >= i + 1:
+            vote = int(ideal_dict[i, 1]) * 1.0 - min_val + 1
             if i <= 0:
-                idcg.append(int(ideal_dict[i, 1]) * 1.0)
+                idcg.append(vote)
             else:
-                idcg.append(idcg[-1] + int(ideal_dict[i, 1]) / math.log2(i + 1))
+                idcg.append(idcg[-1] + vote / math.log2(i + 1))
         else:
             idcg.append(idcg[-1])
     rel_num = ideal_dict.shape[0]
@@ -582,42 +583,40 @@ if __name__ == '__main__':
                 d_dict = sorted(d_dict.items(), key=lambda x: x[1], reverse=True)
                 f_dict = sorted(f_dict.items(), key=lambda x: x[1], reverse=True)
                 ideal_dict = {}
+                d_ideal_dict = {}
+                f_ideal_dict = {}
                 for answer in d2v_qa_dict[q]:
                     rank = int(answer[answer.rfind("_")+1:])
                     ideal_dict[answer] = rank
+                    d_ideal_dict[answer] = rank
                 if q in f2v_qa_dict:
                     for answer in f2v_qa_dict[q]:
+                        rank = int(answer[answer.rfind("_")+1:])
+                        f_ideal_dict[answer] = rank
                         if answer not in ideal_dict.keys():
-                            rank = int(answer[answer.rfind("_")+1:])
                             ideal_dict[answer] = rank
                 ideal_dict = sorted(ideal_dict.items(), key=lambda x: x[1], reverse=True)
-                d_ideal_dict = {}
-                for answer in d2v_qa_dict[q]:
-                    rank = int(answer[answer.rfind("_")+1:])
-                    d_ideal_dict[answer] = rank
                 d_ideal_dict = sorted(d_ideal_dict.items(), key=lambda x: x[1], reverse=True)
-                f_ideal_dict = {}
-                for answer in f2v_qa_dict[q]:
-                    rank = int(answer[answer.rfind("_")+1:])
-                    f_ideal_dict[answer] = rank
                 f_ideal_dict = sorted(f_ideal_dict.items(), key=lambda x: x[1], reverse=True)
-                precision, recall, rr, p_dcg, i_dcg, n_dcg = calc_metrics(a_dict, ideal_dict)
-                excel_sheet3 = write_to_sheet(excel_sheet3, index, precision, recall, rr, p_dcg, i_dcg, n_dcg)
-                a_prec.append(precision)
-                a_rec.append(recall)
-                mrr.append(rr)
-                a_dcg.append(p_dcg)
-                a_idcg.append(i_dcg)
-                a_ndcg.append(n_dcg)
-                precision, recall, rr, p_dcg, i_dcg, n_dcg = calc_metrics(d_dict, d_ideal_dict)
-                excel_sheet = write_to_sheet(excel_sheet, index, precision, recall, rr, p_dcg, i_dcg, n_dcg)
-                d_prec.append(precision)
-                d_rec.append(recall)
-                d_mrr.append(rr)
-                d_dcg.append(p_dcg)
-                d_idcg.append(i_dcg)
-                d_ndcg.append(n_dcg)
-                if(len(f_ideal_dict) > 0):
+                if(len(ideal_dict) > 0 and len(a_dict) > 0):
+                    precision, recall, rr, p_dcg, i_dcg, n_dcg = calc_metrics(a_dict, ideal_dict)
+                    excel_sheet3 = write_to_sheet(excel_sheet3, index, precision, recall, rr, p_dcg, i_dcg, n_dcg)
+                    a_prec.append(precision)
+                    a_rec.append(recall)
+                    mrr.append(rr)
+                    a_dcg.append(p_dcg)
+                    a_idcg.append(i_dcg)
+                    a_ndcg.append(n_dcg)
+                if(len(d_ideal_dict) > 0 and len(d_dict) > 0):
+                    precision, recall, rr, p_dcg, i_dcg, n_dcg = calc_metrics(d_dict, d_ideal_dict)
+                    excel_sheet = write_to_sheet(excel_sheet, index, precision, recall, rr, p_dcg, i_dcg, n_dcg)
+                    d_prec.append(precision)
+                    d_rec.append(recall)
+                    d_mrr.append(rr)
+                    d_dcg.append(p_dcg)
+                    d_idcg.append(i_dcg)
+                    d_ndcg.append(n_dcg)
+                if(len(f_ideal_dict) > 0 and len(f_dict) > 0):
                     precision, recall, rr, p_dcg, i_dcg, n_dcg = calc_metrics(f_dict, f_ideal_dict)
                     excel_sheet2 = write_to_sheet(excel_sheet2, index, precision, recall, rr, p_dcg, i_dcg, n_dcg)
                     f_prec.append(precision)
