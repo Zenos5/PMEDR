@@ -1,0 +1,147 @@
+/*
+    Tangent
+    Copyright (c) 2013 David Stalnaker, Richard Zanibbi
+
+    This file is part of Tangent.
+
+    Tanget is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Tangent is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Tangent.  If not, see <http://www.gnu.org/licenses/>.
+
+    Contact:
+        - David Stalnaker: david.stalnaker@gmail.com
+        - Richard Zanibbi: rlaz@cs.rit.edu
+*/
+
+/* Resets */
+
+body {
+    margin: 0;
+    font-family: "Helvetica Neue";
+    font-size: 1.4em;
+    color: #222;
+}
+
+/* Common Header */
+
+#header {
+    background-color: #eee;
+    padding: 12px 30px;
+    overflow: auto;
+    border-bottom: 1px solid #ccc;
+}
+
+#logo {
+    padding-right: 150px;
+    font-family: "Helvetica Neue";
+    font-weight: 100;
+    font-size: 2em;
+    float: left;
+}
+
+#query {
+    border: 1px solid #ccc;
+    background: white;
+    padding: 4px;
+    margin-top: 9px;
+    float: left;
+    font-size: 1em;
+    width: 500px;
+}
+
+/* Common body */
+
+#body {
+    padding: 30px 60px;
+}
+
+#body h2 {
+    margin-top: 0;
+}
+
+#body p {
+
+}
+
+/* Query Results */
+
+#numResults {
+    color: #999;
+    font-size: 0.8em;
+}
+
+#results {
+    list-style: none;
+    padding: 30px 0;
+}
+
+.result {
+    padding: 5px;
+    margin: 10px 0;
+    border-radius: 5px;
+}
+
+.result:hover {
+    background: #e4e4e4;
+}
+
+.expression {
+    margin-bottom: 5px;
+}
+
+.info {
+    font-size: 0.8em;
+    color: #999;
+}
+
+.extra {
+    display: none;
+}
+
+.selected {
+    background: #e4e4e4;
+}
+
+.selected .extra {
+    display: block;
+}
+
+/* Home page search box */
+
+.home #header {
+    font-size:1.6em;
+    margin-top: 200px;
+    border-top: 1px solid #ccc;
+}
+
+.home #logo {
+
+}
+
+.home #query {
+    margin-top:15px
+}
+
+/* Default table styles */
+
+table, tr, td {
+    border: 1px solid #ccc;
+}
+
+table {
+    border-collapse: collapse;
+}
+
+td {
+    vertical-align: top;
+    padding: 5px;
+}
