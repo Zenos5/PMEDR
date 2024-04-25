@@ -1,9 +1,0 @@
-#!/bin/bash
-
-. script/github-common
-
-# Index the test dataset
-mias test/ index/
-
-# Check that the index has been created
-[[ -e index/segments.gen ]]

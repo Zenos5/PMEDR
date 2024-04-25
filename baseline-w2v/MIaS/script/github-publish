@@ -1,6 +1,0 @@
-#!/bin/bash
-
-. script/github-common
-
-# Publish image
-docker_push
