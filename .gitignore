@@ -16,9 +16,9 @@ word2vec/baseline/__pycache__
 word2vec/baseline/w2vbaseenv/
 !word2vec/baseline/requirements.txt
 word2vec/baseline/*.txt
-baseline-w2v/TangentCFT/tangentCFTenv
+baseline-w2v/TangentCFT/tangentCFTenv/
 baseline-w2v/TangentCFT/MSE_dataset.csv
-baseline-w2v/Tangent/tangentenv
+baseline-w2v/Tangent/tangentenv/
 *.zip
 *.gz
 *.tar
