@@ -26,8 +26,8 @@ source ./tangentenv/bin/activate
 # index: index the formulas in the collection
 #         flush: empty the current index
 #         <directory>: directory or file containing tex and mathml documents containing formulas to index
-# python indexer.py flush <directory> [<directory2> ..]
-# python indexer.py index <directory> [<directory2> ..]
+# python indexer.py flush "../../data/MSE_dataset_full/dataset_full/math/"
+python indexer.py index "../../data/MSE_dataset_full/dataset_full/math/"
 
 # python search.py config_object query [query2, ...]
 #         config_object: class name of Config object; ex: config.FMeasureConfig

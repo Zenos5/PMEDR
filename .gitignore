@@ -19,3 +19,6 @@ word2vec/baseline/*.txt
 baseline-w2v/TangentCFT/tangentCFTenv
 baseline-w2v/TangentCFT/MSE_dataset.csv
 baseline-w2v/Tangent/tangentenv
+*.zip
+*.gz
+*.tar
