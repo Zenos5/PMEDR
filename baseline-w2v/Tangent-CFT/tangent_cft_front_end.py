@@ -1,9 +1,16 @@
 import argparse
 import distutils.util
+import sys
+import builtins
+import os
 
 from Embedding_Preprocessing.encoder_tuple_level import TupleTokenizationMode
 from tangent_cft_back_end import TangentCFTBackEnd
 
+sys.stdout = open("stdout.txt", "w", buffering=1)
+def print(text):
+    builtins.print(text)
+    os.fsync(sys.stdout)
 
 def main():
     parser = argparse.ArgumentParser(description='Given the configuration file for training Tangent_CFT model.'
@@ -34,12 +41,13 @@ def main():
 
     args = vars(parser.parse_args())
 
+    print(args)
+
     train_model = args['t']
     do_retrieval = args['r']
     dataset_file_path = args['ds']
     config_id = args['cid']
     is_wiki = args['wiki']
-    print("is_wiki =", is_wiki)
     read_slt = args['slt']
     encoder_file_path = args['em']
     model_file_path = args['mp']

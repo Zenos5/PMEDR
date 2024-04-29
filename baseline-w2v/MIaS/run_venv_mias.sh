@@ -21,22 +21,27 @@ module load python/3.11 jdk maven/3.6
 
 cd $HOME/PMEDR/baseline-w2v/MIaS/
 
-cd MathMLCan/
-mvn clean install
-cd ..
+# printf "\n<===MathMLCan===>\n"
+# cd MathMLCan/
+# mvn clean install
+# cd ..
 
-cd MathMLUnificator/
-mvn clean install
-cd ..
+# printf "\n<===MathMLUnificator===>\n"
+# cd MathMLUnificator/
+# mvn clean install
+# cd ..
 
-cd MIaSMath/
-mvn clean install
-cd ..
+# printf "\n<===MIaSMath===>\n"
+# cd MIaSMath/
+# mvn clean install
+# cd ..
 
+printf "\n<===MIaS===>\n"
 cd MIaS/
 mvn clean install
 cd ..
 
-cd WebMIaS/
-mvn clean install
-cd ..
+# printf "\n<===WebMIaS===>\n"
+# cd WebMIaS/
+# mvn clean install
+# cd ..

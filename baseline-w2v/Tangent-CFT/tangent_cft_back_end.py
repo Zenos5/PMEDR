@@ -1,3 +1,5 @@
+import sys
+import builtins
 import os
 
 from Configuration.configuration import Configuration
@@ -7,6 +9,10 @@ from Embedding_Preprocessing.encoder_tuple_level import TupleEncoder, TupleToken
 
 from tangent_cft_module import TangentCFTModule
 
+sys.stdout = open("stdout.txt", "w", buffering=1)
+def print(text):
+    builtins.print(text)
+    os.fsync(sys.stdout)
 
 class TangentCFTBackEnd:
     def __init__(self, config_file, path_data_set, is_wiki=True, read_slt=True, queries_directory_path=None):
@@ -30,13 +36,14 @@ class TangentCFTBackEnd:
         This method is for training the tangent-cft model and saves the encoder and model after training is done.
         """
         self.module = TangentCFTModule()
-        if os.path.isfile(map_file_path):
-            self.__load_encoder_map(map_file_path)
+        # if os.path.isfile(map_file_path):
+        #     self.__load_encoder_map(map_file_path)
         dictionary_formula_tuples_collection = self.__encode_train_tuples(embedding_type, ignore_full_relative_path,
                                                                           tokenize_all, tokenize_number)
-        self.__save_encoder_map(map_file_path)
+        
         print("training the fast text model...")
         self.module.train_model(self.config, list(dictionary_formula_tuples_collection.values()))
+        self.__save_encoder_map(map_file_path)
 
         if model_file_path is not None:
             print("saving the fast text model...")

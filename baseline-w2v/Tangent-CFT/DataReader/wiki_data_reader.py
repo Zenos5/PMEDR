@@ -1,11 +1,17 @@
 import os
 import unicodedata
 from abc import ABC
+import sys
+import builtins
 
 from DataReader.abstract_data_reader import AbstractDataReader
 from TangentS.math_tan.math_document import MathDocument
 from TangentS.math_tan.math_extractor import MathExtractor
 
+sys.stdout = open("stdout.txt", "w", buffering=1)
+def print(text):
+    builtins.print(text)
+    os.fsync(sys.stdout)
 
 class WikiDataReader(AbstractDataReader, ABC):
     def __init__(self, collection_file_path, read_slt=True, queries_directory_path=None):
